@@ -1,0 +1,93 @@
+---
+layout: post
+title:  "Jekyll 配置笔记"
+date:   2019-10-22 23:39:36  +0800
+categories: jekyll update
+---
+
+## 需求
+
+需要部署一个 GitHub Pages 做博客。
+
+## 本地环境
+
+* 操作系统：Windows 10
+* 开发工具：Visual Studio Code
+
+## 过程
+
+### 下载 RubyInstaller
+
+https://rubyinstaller.org/downloads/
+
+### 命令行操作
+
+```bat
+:: 修改镜像源，必须操作
+PS C:\Users\feilong\repo> gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
+
+PS C:\Users\feilong\repo> gem sources -l
+*** CURRENT SOURCES ***
+
+http://gems.ruby-china.com/
+
+:: 这样你不用改你的 Gemfile 的 source
+PS C:\Users\feilong\repo> bundle config mirror.https://rubygems.org https://gems.ruby-china.com
+
+PS C:\Users\feilong\repo> gem install jekyll bundler
+
+PS C:\Users\feilong\repo> jekyll -v
+jekyll 4.0.0
+
+:: 创建博客文件模板
+PS C:\Users\feilong\repo> jekyll new vflong.github.io
+Running bundle install in C:/Users/feilong/repo/vflong.github.io... 
+  Bundler: Fetching gem metadata from https://gems.ruby-china.com/...............
+  Bundler: Fetching gem metadata from https://gems.ruby-china.com/..
+  Bundler: Resolving dependencies...
+  Bundler: Using public_suffix 4.0.1
+  Bundler: Using addressable 2.7.0
+  Bundler: Using bundler 2.0.2
+  Bundler: Using colorator 1.1.0
+  Bundler: Using concurrent-ruby 1.1.5
+  Bundler: Using eventmachine 1.2.7 (x64-mingw32)
+  Bundler: Using http_parser.rb 0.6.0
+  Bundler: Using em-websocket 0.5.1
+  Bundler: Using ffi 1.11.1 (x64-mingw32)
+  Bundler: Using forwardable-extended 2.6.0
+  Bundler: Using i18n 1.7.0
+  Bundler: Using sassc 2.2.1 (x64-mingw32)
+  Bundler: Using jekyll-sass-converter 2.0.1
+  Bundler: Using rb-fsevent 0.10.3
+  Bundler: Using rb-inotify 0.10.0
+  Bundler: Using listen 3.2.0
+  Bundler: Using jekyll-watch 2.2.1
+  Bundler: Using kramdown 2.1.0
+  Bundler: Using kramdown-parser-gfm 1.1.0
+  Bundler: Using liquid 4.0.3
+  Bundler: Using mercenary 0.3.6
+  Bundler: Using pathutil 0.16.2
+  Bundler: Using rouge 3.12.0
+  Bundler: Using safe_yaml 1.0.5
+  Bundler: Using unicode-display_width 1.6.0
+  Bundler: Using terminal-table 1.8.0
+  Bundler: Using jekyll 4.0.0
+  Bundler: Using jekyll-feed 0.12.1
+  Bundler: Using jekyll-seo-tag 2.6.1
+  Bundler: Using minima 2.5.1
+  Bundler: Using thread_safe 0.3.6
+  Bundler: Using tzinfo 1.2.5
+  Bundler: Using tzinfo-data 1.2019.3
+  Bundler: Using wdm 0.1.1
+  Bundler: Bundle complete! 6 Gemfile dependencies, 34 gems now installed.
+  Bundler: Use `bundle info [gemname]` to see where a bundled gem is installed.
+New jekyll site installed in C:/Users/feilong/repo/vflong.github.io.
+```
+
+
+
+
+## 参考
+* https://help.github.com/en/github/working-with-github-pages/creating-a-github-pages-site-with-jekyll
+* https://jekyllrb.com/docs/installation/windows/
+* https://gems.ruby-china.com/
