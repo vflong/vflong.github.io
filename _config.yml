@@ -23,7 +23,7 @@ email: weifeilong2013@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   运维工程师
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://vflong.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  vflong
 google_analytics: UA-150756446-1
 show_excerpts: true
