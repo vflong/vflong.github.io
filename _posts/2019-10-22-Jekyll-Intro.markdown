@@ -82,6 +82,21 @@ Running bundle install in C:/Users/feilong/repo/vflong.github.io...
   Bundler: Bundle complete! 6 Gemfile dependencies, 34 gems now installed.
   Bundler: Use `bundle info [gemname]` to see where a bundled gem is installed.
 New jekyll site installed in C:/Users/feilong/repo/vflong.github.io.
+
+:: 本地启动
+PS C:\Users\feilong\repo\vflong.github.io> bundle exec jekyll serve --port 8080
+Configuration file: C:/Users/feilong/repo/vflong.github.io/_config.yml
+            Source: C:/Users/feilong/repo/vflong.github.io
+       Destination: C:/Users/feilong/repo/vflong.github.io/_site
+ Incremental build: disabled. Enable with --incremental
+      Generating...
+       Jekyll Feed: Generating feed for posts
+                    done in 6.124 seconds.
+ Auto-regeneration: enabled for 'C:/Users/feilong/repo/vflong.github.io'
+    Server address: http://127.0.0.1:8080/
+  Server running... press ctrl-c to stop.
+
+:: 访问 http://127.0.0.1:8080/
 ```
 
 
