@@ -103,6 +103,6 @@ Configuration file: C:/Users/feilong/repo/vflong.github.io/_config.yml
 
 
 ## 参考
-* https://help.github.com/en/github/working-with-github-pages/creating-a-github-pages-site-with-jekyll
-* https://jekyllrb.com/docs/installation/windows/
-* https://gems.ruby-china.com/
+* [creating-a-github-pages-site-with-jekyll](https://help.github.com/en/github/working-with-github-pages/creating-a-github-pages-site-with-jekyll)
+* [jekyllrb](https://jekyllrb.com/docs/installation/windows/)
+* [ruby-china](https://gems.ruby-china.com/)
