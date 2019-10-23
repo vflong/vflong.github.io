@@ -27,6 +27,8 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  vflong
 google_analytics: UA-150756446-1
 show_excerpts: true
+disqus:
+  shortname: vflong
 
 # Build settings
 theme: minima
