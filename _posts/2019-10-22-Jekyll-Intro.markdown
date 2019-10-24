@@ -2,12 +2,10 @@
 layout: post
 title:  "Jekyll 配置笔记"
 date:   2019-10-22 23:39:36  +0800
-categories: jekyll update
+categories: jekyll
 ---
 
-## 需求
-
-需要部署一个 GitHub Pages 做博客。
+    使用 Jekyll 部署一个 GitHub Pages 做博客。
 
 ## 本地环境
 
