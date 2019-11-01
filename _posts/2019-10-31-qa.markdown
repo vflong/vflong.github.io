@@ -19,6 +19,8 @@ Q: Dockerfile 中 expose 是必须的吗？如果不添加有什么影响？
 
 Q: Dockerfile 中 COPY 与 ADD 的区别
 
+Q: Docker 运行在操作系统中，如何保障安全性？
+
 Q: Kubernetes 的网络插件种类及其区别
 
 Q: Kubernetes 的探针种类及区别
