@@ -29,6 +29,8 @@ Q: Kubernetes 中 Deployment 与 Statefulset 的区别
 
 Q: Kubernetes 中的 service 中的 headless 是什么？
 
+Q: Kubernetes 中的 kube-dns 组件如果挂了，内部容器是否能够访问外网？
+
 Q: Kubernetes 保存密码的方式
 
 Q: Kubernetes 的存储种类
