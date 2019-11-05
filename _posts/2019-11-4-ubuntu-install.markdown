@@ -142,4 +142,18 @@ Running ["ImageCheck", "ScriptCheck", "HtmlCheck", "LinkCheck", "OpenGraphCheck"
 $ git add .
 $ git commit -m 'zh-translation:/docs/reference/glossary/operator.md'
 $ git push --set-upstream origin zh-trans-1267
+
+# 清理已 merge 的分支
+$ git checkout master
+$ git fetch upstream master
+$ git merge upstream/master
+$ git branch -d zh-trans-1267
+$ git push origin :zh-trans-1267
+
+# 继续解决下一个 issue
+$ git checkout -b zh-trans-1094
+$ vim ./content/*/docs/reference/glossary/adapters.md -o
+$ git add .
+$ git commit -m 'zh-translation:/docs/reference/glossary/adapters.md'
+$ git push --set-upstream origin zh-trans-1094
 ```
