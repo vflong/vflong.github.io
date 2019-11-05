@@ -24,6 +24,29 @@ $ sudo -i
 # apt install vim tmux htop git -y
 ```
 
+## 配置 SSH Server
+
+```bash
+$ sudo apt install openssh-server
+$ systemctl status sshd
+```
+
+## 安装 oh-my-zsh
+
+```bash
+# https://ohmyz.sh/
+$ sudo apt install zsh
+$ wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
+$ sh -x install.sh
+
+# 安装 zsh-autosuggestions
+# https://github.com/zsh-users/zsh-autosuggestions
+$ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+$ cat .zshrc | grep autosuggestions                            
+plugins=(zsh-autosuggestions)
+$ source .zshrc
+```
+
 ## 安装 Docker
 ```bash
 # 参考 https://docs.docker.com/install/linux/docker-ce/ubuntu/
@@ -45,7 +68,7 @@ EOF
 # 测试
 # docker run hello-world
 
-# 非 root 用户使用 Docker
+# 非 root 用户使用 Docker，需要注销重新登录
 # sudo usermod -aG docker feilong
 ```
 
@@ -61,11 +84,62 @@ $ sudo systemctl status stunnel4.service
 $ export https_proxy='127.0.0.1:3080'; curl -vI "https://www.google.com/robots.txt"
 ```
 
-## 配置 git 环境
+## 配置 istio-official-translation 所需环境
+
+> [istio-official-translation](https://github.com/servicemesher/istio-official-translation)
 
 ```bash
 # 生成密钥，并将公钥添加至 GitHub SSH Keys
 $ ssh-keygen 
 
+# clone 源码
 $ git clone git@github.com:vflong/istio.io.git
+$ cd istio.io/
+$ git config user.name 'feilong'
+$ git config user.email 'weifeilong2013@gmail.com'
+$ git remote add upstream git@github.com:istio/istio.io.git
+$ git checkout -b zh-trans-1267
+# 对比翻译
+$ vim ./content/*/docs/reference/glossary/operator.md -O
+$ git diff content/zh/docs/reference/glossary/operator.md
+diff --git a/content/zh/docs/reference/glossary/operator.md b/content/zh/docs/reference/glossary/operator.md
+index 0d277a53..58ccdff5 100644
+--- a/content/zh/docs/reference/glossary/operator.md
++++ b/content/zh/docs/reference/glossary/operator.md
+@@ -1,4 +1,4 @@
+ ---
+ title: Operator
+ ---
+-Operators are a method of packaging, deploying and managing a Kubernetes application. For more information, see [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
++Operator 是打包，部署和管理 Kubernetes 应用程序的一种方法。有关更多信息，请参见 [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)。
+
+$ docker pull gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
+$ sudo apt install make
+$ make serve
+# 翻译段落的地址：http://localhost:1313/zh/docs/reference/glossary/#operator
+
+# 检查
+$ make INTERNAL_ONLY=True lint
+Building with the build container: gcr.io/istio-testing/build-tools:2019-10-24T14-05-17.
+
+                   | EN  | ZH   
++------------------+-----+-----+
+  Pages            | 546 | 545  
+  Paginator pages  |   0 |   0  
+  Non-page files   | 164 | 164  
+  Static files     |  54 |  54  
+  Processed images |   0 |   0  
+  Aliases          |   1 |   0  
+  Sitemaps         |   2 |   1  
+  Cleaned          |   0 |   0  
+
+Total in 241551 ms
+>> 430 files are free from spelling errors
+>> 429 files are free from spelling errors
+Running ["ImageCheck", "ScriptCheck", "HtmlCheck", "LinkCheck", "OpenGraphCheck"] on ["./public"] on *.html... 
+
+# 提交并推送
+$ git add .
+$ git commit -m 'zh-translation:/docs/reference/glossary/operator.md'
+$ git push --set-upstream origin zh-trans-1267
 ```
