@@ -146,7 +146,8 @@ $ git push --set-upstream origin zh-trans-1267
 # 清理已 merge 的分支
 $ git checkout master
 $ git fetch upstream master
-$ git merge upstream/master
+$ git pull --rebase upstream master
+$ git push origin master
 $ git branch -d zh-trans-1267
 $ git push origin :zh-trans-1267
 
