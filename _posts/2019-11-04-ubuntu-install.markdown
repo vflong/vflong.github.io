@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Ubuntu 使用笔记"
-date:   2019-11-4 22:42:07 +0800
+date:   2019-11-04 22:42:07 +0800
 categories: sre
 ---
 
