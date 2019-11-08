@@ -27,7 +27,7 @@ Prometheus 通过抓取或拉取应用程序中暴露的时间序列数据来工
 * Prometheus server - 拉取并存储时间序列数据
 * client libraries - 检测应用程序代码
 * push gateway - 支持短期 job 或不支持拉取的应用
-* 专用 service exporter - 用于获取相应入局，如 HAProxy、Kafka 等
+* 专用 service exporter - 用于获取相应服务指标，如 HAProxy、Kafka 等
 * alertmanager - 用于处理告警
 * 各种支持工具
 
