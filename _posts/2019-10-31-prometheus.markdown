@@ -13,13 +13,14 @@ Prometheus 通过抓取或拉取应用程序中暴露的时间序列数据来工
 
 ### 特性
 
-* 一个多维数据模型，其中包含通过度量标准名称和键/值对标识的时间序列数据
-* PromQL，一种灵活的查询语言
-* 不依赖分布式存储；单个服务器节点是自治
-* 时间序列收集通过HTTP上的拉模型进行
-* 通过中间网关支持推送时间序列
-* 通过服务发现或静态配置发现目标
-* 多种图形和仪表板支持模式
+* 多维数据（Dimensional data）
+* 强大的查询（Powerful queries)
+* 强大的可视化（Great visualization）
+* 高效的存储（Efficient storage）
+* 简单的运维（Simple operation）
+* 精确的告警（Precise alerting）
+* 客户端库丰富（Many client libraries）
+* 插件丰富（Many integrations）
 
 ## 本地学习
 
