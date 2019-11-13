@@ -38,7 +38,7 @@ Prometheus 通过抓取或拉取应用程序中暴露的时间序列数据来工
 * 操作系统：Windows 10
 * 终端工具：Windows Terminal (Preview) Version: 0.6.2951.0
 
-### 操作过程
+### Prometheus
 
 #### 监控本机的配置
 配置文件：prometheus.yml
@@ -132,3 +132,29 @@ scrape_configs:
         labels:
           group: 'canary'
 ```
+
+### 可视化
+
+#### 表达式浏览器
+
+[点击](http://localhost:9090/graph)
+
+#### Grafana
+
+```bat
+PS C:\grafana> .\bin\grafana-server.exe
+```
+
+[点击](http://localhost:3000/)
+
+##### 添加监控图形
+
+* Metrics：rate(prometheus_http_request_duration_seconds_count{job="prometheus"}[5m])
+* Legend： {{handler}}
+
+#### 控制台模板
+
+    学习曲线陡峭，一般使用 Grafana。
+
+[点击](http://localhost:9090/consoles/index.html.example)
+
