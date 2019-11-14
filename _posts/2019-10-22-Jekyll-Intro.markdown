@@ -97,7 +97,58 @@ Configuration file: C:/Users/feilong/repo/vflong.github.io/_config.yml
 :: 访问 http://127.0.0.1:8080/
 ```
 
+## 补充
 
+### Ubuntu 中配置开发环境
+
+```bash
+$ sudo apt install ruby gem -y
+$ gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
+
+https://gems.ruby-china.com/ added to sources
+https://rubygems.org/ removed from sources
+
+$ gem sources -l
+*** CURRENT SOURCES ***
+
+https://gems.ruby-china.com/
+
+$ sudo apt install jekyll bundler -y
+$ bundle config mirror.https://rubygems.org https://gems.ruby-china.com
+$ bundle update
+$ bundle exec jekyll -v               
+jekyll 4.0.0
+
+$ bundle exec jekyll serve --port 8080
+Configuration file: /home/feilong/repo/vflong.github.io/_config.yml
+            Source: /home/feilong/repo/vflong.github.io
+       Destination: /home/feilong/repo/vflong.github.io/_site
+ Incremental build: disabled. Enable with --incremental
+      Generating... 
+       Jekyll Feed: Generating feed for posts
+                    done in 0.494 seconds.
+ Auto-regeneration: enabled for '/home/feilong/repo/vflong.github.io'
+    Server address: http://127.0.0.1:8080/
+  Server running... press ctrl-c to stop.
+
+# 忽略这个报错信息，对开发环境无影响
+$ jekyll -v                                                            
+Traceback (most recent call last):
+	13: from /usr/local/bin/jekyll:23:in `<main>'
+	12: from /usr/local/bin/jekyll:23:in `load'
+	11: from /var/lib/gems/2.5.0/gems/jekyll-4.0.0/exe/jekyll:11:in `<top (required)>'
+	10: from /var/lib/gems/2.5.0/gems/jekyll-4.0.0/lib/jekyll/plugin_manager.rb:52:in `require_from_bundler'
+	 9: from /usr/lib/ruby/vendor_ruby/bundler.rb:101:in `setup'
+	 8: from /usr/lib/ruby/vendor_ruby/bundler.rb:135:in `definition'
+	 7: from /usr/lib/ruby/vendor_ruby/bundler/definition.rb:35:in `build'
+	 6: from /usr/lib/ruby/vendor_ruby/bundler/dsl.rb:13:in `evaluate'
+	 5: from /usr/lib/ruby/vendor_ruby/bundler/dsl.rb:218:in `to_definition'
+	 4: from /usr/lib/ruby/vendor_ruby/bundler/dsl.rb:218:in `new'
+	 3: from /usr/lib/ruby/vendor_ruby/bundler/definition.rb:83:in `initialize'
+	 2: from /usr/lib/ruby/vendor_ruby/bundler/definition.rb:83:in `new'
+	 1: from /usr/lib/ruby/vendor_ruby/bundler/lockfile_parser.rb:95:in `initialize'
+/usr/lib/ruby/vendor_ruby/bundler/lockfile_parser.rb:108:in `warn_for_outdated_bundler_version': You must use Bundler 2 or greater with this lockfile. (Bundler::LockfileError)
+```
 
 
 ## 参考
