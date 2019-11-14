@@ -5,7 +5,7 @@ date:   2019-10-22 23:39:36  +0800
 categories: jekyll
 ---
 
-    使用 Jekyll 部署一个 GitHub Pages 做博客。
+    使用 Jekyll 部署一个 GitHub Pages。
 
 ## 本地环境
 
