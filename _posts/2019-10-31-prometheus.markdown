@@ -150,7 +150,7 @@ PS C:\grafana> .\bin\grafana-server.exe
 ##### 添加监控图形
 
 * Metrics：rate(prometheus_http_request_duration_seconds_count{job="prometheus"}[5m])
-* Legend： {{handler}}
+* Legend： \{{handler}}
 
 #### 控制台模板
 
