@@ -35,6 +35,8 @@ $ systemctl status sshd
 
 ```bash
 # https://ohmyz.sh/
+
+# 安装 zsh 并配置 oh-my-zsh
 $ sudo apt install zsh
 $ wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
 $ sh -x install.sh
@@ -45,6 +47,19 @@ $ git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh
 $ cat .zshrc | grep autosuggestions                            
 plugins=(zsh-autosuggestions)
 $ source .zshrc
+```
+
+## 配置 Vim
+
+```bash
+# https://github.com/amix/vimrc
+# 安装
+$ git clone --depth=1 https://github.com/amix/vimrc.git ~/.vim_runtime
+$ sh ~/.vim_runtime/install_awesome_vimrc.sh
+
+# 更新
+$ cd ~/.vim_runtime
+$ git pull --rebase
 ```
 
 ## 安装 Docker
