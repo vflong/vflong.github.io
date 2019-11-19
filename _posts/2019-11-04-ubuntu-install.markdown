@@ -10,14 +10,42 @@ categories: sre
 
 ## 安装
 
-> 在 VMware 中安装。
+安装方式：
+
+* 在物理机安装。
+* 在 VMware 中安装。
+
+```bash
+$ neofetch   
+            .-/+oossssoo+/-.               feilong@feilong-Lenovo 
+        `:+ssssssssssssssssss+:`           ---------------------- 
+      -+ssssssssssssssssssyyssss+-         OS: Ubuntu 18.04.3 LTS x86_64 
+    .ossssssssssssssssssdMMMNysssso.       Host: Lenovo G480 Lenovo G480 
+   /ssssssssssshdmmNNmmyNMMMMhssssss/      Kernel: 5.0.0-37-generic 
+  +ssssssssshmydMMMMMMMNddddyssssssss+     Uptime: 23 hours, 15 mins 
+ /sssssssshNMMMyhhyyyyhmNMMMNhssssssss/    Packages: 1869 
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.   Shell: zsh 5.4.2 
++sssshhhyNMMNyssssssssssssyNMMMysssssss+   Resolution: 1366x768, 2048x1080 
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso   DE: GNOME 3.28.4 
+ossyNMMMNyMMhsssssssssssssshmmmhssssssso   WM: GNOME Shell 
++sssshhhyNMMNyssssssssssssyNMMMysssssss+   WM Theme: Adwaita 
+.ssssssssdMMMNhsssssssssshNMMMdssssssss.   Theme: Ambiance [GTK2/3] 
+ /sssssssshNMMMyhhyyyyhdNMMMNhssssssss/    Icons: Ubuntu-mono-dark [GTK2/3] 
+  +sssssssssdmydMMMMMMMMddddyssssssss+     Terminal: gnome-terminal 
+   /ssssssssssshdmNNNNmyNMMMMhssssss/      CPU: Intel i3-2370M (4) @ 2.400GHz 
+    .ossssssssssssssssssdMMMNysssso.       GPU: Intel 2nd Generation Core Processor Family 
+      -+sssssssssssssssssyyyssss+-         GPU: NVIDIA GeForce 610M/710M/810M/820M / GT 620M/625M/630M/720M 
+        `:+ssssssssssssssssss+:`           Memory: 2620MiB / 7873MiB 
+            .-/+oossssoo+/-. 
+
+```
+
 
 ## 初始化
 
 * 修改镜像源为 "mirrors.aliyun.com"，具体内容请参考[阿里巴巴开源镜像站](https://opsx.alibaba.com/mirror?lang=zh-CN)。
 
 * 更新系统并安装软件。
-
 ```bash
 $ sudo -i
 # apt update -y && apt upgrade -y
@@ -161,13 +189,14 @@ $ git add .
 $ git commit -m 'zh-translation:/docs/reference/glossary/operator.md'
 $ git push --set-upstream origin zh-trans-1267
 
-# 清理已 merge 的分支
+# https://github.com/istio/istio.io/compare
+# 创建 PR，按照指示填写所需信息
+
+# 更新代码
 $ git checkout master
 $ git fetch upstream master
 $ git pull --rebase upstream master
 $ git push origin master
-$ git branch -d zh-trans-1267
-$ git push origin :zh-trans-1267
 
 # 继续解决下一个 issue
 $ git checkout -b zh-trans-1094
@@ -175,6 +204,10 @@ $ vim ./content/*/docs/reference/glossary/adapters.md -o
 $ git add .
 $ git commit -m 'zh-translation:/docs/reference/glossary/adapters.md'
 $ git push --set-upstream origin zh-trans-1094
+
+# 清理已 merge 的分支
+$ git branch -d zh-trans-1267
+$ git push origin :zh-trans-1267
 ```
 
 ### 修改文件中用到的一些 Vim 命令
