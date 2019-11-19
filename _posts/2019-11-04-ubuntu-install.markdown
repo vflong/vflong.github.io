@@ -99,7 +99,7 @@ $ sudo systemctl status stunnel4.service
 $ export https_proxy='127.0.0.1:3080'; curl -vI "https://www.google.com/robots.txt"
 ```
 
-## 配置 istio-official-translation 所需环境
+## istio-official-translation 开发环境配置
 
 > [istio-official-translation](https://github.com/servicemesher/istio-official-translation)
 
@@ -128,8 +128,11 @@ index 0d277a53..58ccdff5 100644
 -Operators are a method of packaging, deploying and managing a Kubernetes application. For more information, see [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/).
 +Operator 是打包，部署和管理 Kubernetes 应用程序的一种方法。有关更多信息，请参见 [Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)。
 
+# 若镜像拉取失败，请参考 repo。
 $ docker pull gcr.io/istio-testing/build-tools:2019-10-24T14-05-17
 $ sudo apt install make
+
+# 本地访问：http://localhost:1313
 $ make serve
 # 翻译段落的地址：http://localhost:1313/zh/docs/reference/glossary/#operator
 
@@ -172,4 +175,11 @@ $ vim ./content/*/docs/reference/glossary/adapters.md -o
 $ git add .
 $ git commit -m 'zh-translation:/docs/reference/glossary/adapters.md'
 $ git push --set-upstream origin zh-trans-1094
+```
+
+### 修改文件中用到的一些 Vim 命令
+
+* 替换：() -> {}
+```
+:%s/](#\(.*\))$/]{#\1}/g
 ```
