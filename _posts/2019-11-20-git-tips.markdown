@@ -17,4 +17,11 @@ categories: sre
 ```bash
 # 等价于 git fetch; git rebase
 $ git pull --rebase
+
+# 常用命令
+$ git pull --rebase upstream master
 ```
+
+### git-rebase
+
+* 在另一个分支基础上重新应用提交
