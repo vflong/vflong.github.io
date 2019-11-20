@@ -1,0 +1,14 @@
+---
+layout: post
+title:  "Git 命令"
+date:   2019-11-20 13:47:30 +0800
+categories: sre
+---
+
+    git 的一些琐碎操作。
+
+### 日常操作
+
+```bash
+$ git pull --rebase
+```
