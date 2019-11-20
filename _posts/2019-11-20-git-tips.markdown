@@ -7,8 +7,14 @@ categories: sre
 
     git 的一些琐碎操作。
 
-### 日常操作
+## 共享和更新项目
+
+### git-pull
+
+* 从另一个存储库或本地分支获取并与之集成。
+* 等价于 `git fetch; git merge FETCH_HEAD`。
 
 ```bash
+# 等价于 git fetch; git rebase
 $ git pull --rebase
 ```
