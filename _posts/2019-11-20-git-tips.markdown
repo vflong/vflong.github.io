@@ -22,6 +22,18 @@ $ git pull --rebase
 $ git pull --rebase upstream master
 ```
 
+## 打补丁
+
 ### git-rebase
 
 * 在另一个分支基础上重新应用提交
+
+```bash
+# 解决冲突
+$ git diff
+$ git add <filename>
+$ git rebase --continue
+
+# 撤销 git rebase
+$ git rebase --abort
+```
