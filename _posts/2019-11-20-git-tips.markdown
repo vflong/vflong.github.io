@@ -17,6 +17,15 @@ categories: sre
 ```bash
 # 等价于 git fetch; git rebase
 $ git pull --rebase
+remote: Enumerating objects: 6, done.
+remote: Counting objects: 100% (6/6), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 4 (delta 2), reused 4 (delta 2), pack-reused 0
+Unpacking objects: 100% (4/4), done.
+From github.com:vflong/vflong.github.io
+   19bf7ef..2af5153  master     -> origin/master
+First, rewinding head to replay your work on top of it...
+Applying: :pencil2: git rebase
 
 # 常用命令
 $ git pull --rebase upstream master
