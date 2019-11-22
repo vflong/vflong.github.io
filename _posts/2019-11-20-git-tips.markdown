@@ -7,7 +7,11 @@ categories: sre
 
     git 的一些琐碎操作。
 
-## 编辑器
+## 配置
+
+### git-config
+
+* 获取并设置存储库或全局选项。
 
 ```bash
 # 修改 commit 编辑器
@@ -42,7 +46,7 @@ $ git pull --rebase upstream master
 
 ### git-rebase
 
-* 在另一个分支基础上重新应用提交
+* 在另一个分支基础上重新应用提交。
 
 ```bash
 # 解决冲突
@@ -52,4 +56,28 @@ $ git rebase --continue
 
 # 撤销 git rebase
 $ git rebase --abort
+```
+
+### git-revert
+
+* 还原提交。
+
+```bash
+$ git revert 52170dbf          
+[zh-trans-1094 d0f16881] Revert "del extra space"
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+$ git commit -m 'revert to 52170dbf'
+On branch zh-trans-1094
+nothing to commit, working tree clean
+
+$ git push -f origin zh-trans-1094                         
+Counting objects: 8, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (7/7), done.
+Writing objects: 100% (8/8), 720 bytes | 360.00 KiB/s, done.
+Total 8 (delta 5), reused 0 (delta 0)
+remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
+To github.com:vflong/istio.io.git
+ + 61403f8d...d0f16881 zh-trans-1094 -> zh-trans-1094 (forced update)
 ```
