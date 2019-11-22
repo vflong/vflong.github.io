@@ -7,6 +7,13 @@ categories: sre
 
     git 的一些琐碎操作。
 
+## 编辑器
+
+```bash
+# 修改 commit 编辑器
+$ git config --global core.editor "vim"
+```
+
 ## 共享和更新项目
 
 ### git-pull
