@@ -71,6 +71,7 @@ $ git commit -m 'revert to 52170dbf'
 On branch zh-trans-1094
 nothing to commit, working tree clean
 
+# 强制覆盖远程分支，慎用
 $ git push -f origin zh-trans-1094                         
 Counting objects: 8, done.
 Delta compression using up to 4 threads.
