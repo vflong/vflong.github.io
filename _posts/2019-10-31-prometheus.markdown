@@ -152,9 +152,12 @@ PS C:\grafana> .\bin\grafana-server.exe
 * Metrics：rate(prometheus_http_request_duration_seconds_count{job="prometheus"}[5m])
 * Legend： \{\{handler}}
 
+##### 导入仪表盘模板
+
 #### 控制台模板
 
     学习曲线陡峭，一般使用 Grafana。
 
 [点击](http://localhost:9090/consoles/index.html.example)
 
+### 告警
