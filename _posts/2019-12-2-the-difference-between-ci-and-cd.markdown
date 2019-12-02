@@ -7,7 +7,9 @@ categories: sre
 
 英文原文：[the-difference-between-ci-and-cd](https://fire.ci/blog/the-difference-between-ci-and-cd/)
 
-有很多内容描述什么是持续集成、持续交付和持续部署。但是这些流程首先要做什么？
+---
+
+有很多介绍什么是持续集成、持续交付和持续部署的内容。但是这些流程首先要做什么？
 
 了解 CI 和 CD 解决的问题以正确使用它们至关重要。这将使您的团队可以改善您的流程。并避免花力气追求那些不会给您的过程带来任何价值的幻想指标。
 
