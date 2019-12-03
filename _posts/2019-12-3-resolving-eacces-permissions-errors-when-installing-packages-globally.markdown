@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "解决 npm 全局安装软件包时 EACCES 权限错误"
-date:   2019-12-2 17:29:39 +0800
+date:   2019-12-03 22:02:32 +0800
 categories: sre
 ---
 
@@ -9,14 +9,17 @@ categories: sre
 
 ### 解决
 
+#### 手动修改 npm 的默认目录
+
 ```bash
 # 在 npm install 命令前增加以下命令
 mkdir ~/.npm-global
 npm config set prefix '~/.npm-global'
 export PATH=~/.npm-global/bin:$PATH
 
-# 容器内编译，可以省略 source 命令
-source ~/.profile
+# 或者增加以下命令
+mkdir ~/.npm-global
+NPM_CONFIG_PREFIX=~/.npm-global
 ```
 
 ### 参考
