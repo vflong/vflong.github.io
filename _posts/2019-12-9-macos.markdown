@@ -7,6 +7,8 @@ categories: sre
 
     MacOS 开发工具配置。
 
+### 安装 oh-my-zsh
+
 ```bash
 brew install zsh
 wget https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh
