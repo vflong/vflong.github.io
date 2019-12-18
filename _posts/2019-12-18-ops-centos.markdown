@@ -24,7 +24,7 @@ $ cat /etc/hosts
 aliyunecsip C-3PO
 
 # 更换操作系统完成后使用密钥登录
-# 配置 ssh 密钥，其中 myhost 为阿里云 ECS 的公网 IP
+# 配置 ssh 密钥
 $ cat .ssh/config                              
 Host github.com
     Hostname github.com
@@ -35,7 +35,7 @@ Host C-3PO
         IdentityFile ~/.ssh/yangweijie
 
 # 登录
-$ ssh root@yangweijie
+$ ssh root@C-3PO
 Enter passphrase for key '/home/feilong/.ssh/yangweijie': 
 
 # 创建普通用户并配置 sudo 权限
