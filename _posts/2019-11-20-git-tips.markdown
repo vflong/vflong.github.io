@@ -82,3 +82,19 @@ remote: Resolving deltas: 100% (5/5), completed with 5 local objects.
 To github.com:vflong/istio.io.git
  + 61403f8d...d0f16881 zh-trans-1094 -> zh-trans-1094 (forced update)
 ```
+
+## 分支与合并
+
+### git-stash
+
+* 将更改存储在脏的工作目录中
+
+```bash
+# 切换分支前执行 stash
+$ git stash
+$ git checkout master
+$ git checkout develop
+
+# 回到原开发分支后继续开发
+$ git stash pop
+```
