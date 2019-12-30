@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "kubectl 命令"
+date:   2019-12-30 22:21:14 +0800
+categories: sre
+---
+
+    关于 kubectl 命令的一些记录。
+
+### 命令行环境配置
+
+```bash
+# 使用 oh-my-zsh
+
+$ vim .zshrc
+# 开启插件
+plugins=(git zsh-autosuggestions kubectl)
+# 自动补全
+source <(kubectl completion zsh)
+
+$ source .zshrc
+```
+
+### 参考
+
+* [Kubectl plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl)
