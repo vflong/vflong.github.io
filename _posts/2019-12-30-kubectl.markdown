@@ -88,47 +88,47 @@ plugins=(... kubectl)
 |         |                                     | **Deployment 管理**                                                                        |
 | kgd     | `kubectl get deployment`            | 获取 deployment                                                                               |
 | kgdw    | `kgd --watch`                       | 获取 deployment，并观察实时状态                                                  |
-| kgdwide | `kgd -o wide`                       | After getting the deployment, output in plain-text format with any additional information        |
-| ked     | `kubectl edit deployment`           | Edit deployment resource from the default editor                                                 |
-| kdd     | `kubectl describe deployment`       | Describe deployment resource in detail                                                           |
-| kdeld   | `kubectl delete deployment`         | Delete the deployment                                                                            |
-| ksd     | `kubectl scale deployment`          | Scale a deployment                                                                               |
-| krsd    | `kubectl rollout status deployment` | Check the rollout status of a deployment                                                         |
-| kres    | `kubectl set env $@ REFRESHED_AT=...` | Recreate all pods in deployment with zero-downtime                                                         |
-|         |                                     | **Rollout management**                                                                           |
-| kgrs    | `kubectl get rs`                    | To see the ReplicaSet `rs` created by the deployment                                             |
-| krh     | `kubectl rollout history`           | Check the revisions of this deployment                                                           |
-| kru     | `kubectl rollout undo`              | Rollback to the previous revision                                                                |
-|         |                                     | **Port forwarding**                                                                              |
-| kpf     | `kubectl port-forward`              | Forward one or more local ports to a pod                                                         |
-|         |                                     | **Tools for accessing all information**                                                          |
-| kga     | `kubectl get all`                   | List all resources in ps format                                                                  |
-| kgaa    | `kubectl get all --all-namespaces`  | List the requested object(s) across all namespaces                                               |
-|         |                                     | **Logs**                                                                                         |
-| kl      | `kubectl logs`                      | Print the logs for a container or resource                                                       |
-| klf     | `kubectl logs -f`                   | Stream the logs for a container or resource (follow)                                             |
-|         |                                     | **File copy**                                                                                    |
-| kcp     | `kubectl cp`                        | Copy files and directories to and from containers                                                |
-|         |                                     | **Node management**                                                                              |
-| kgno    | `kubectl get nodes`                 | List the nodes in ps output format                                                               |
-| keno    | `kubectl edit node`                 | Edit nodes resource from the default editor                                                      |
-| kdno    | `kubectl describe node`             | Describe node resource in detail                                                                 |
-| kdelno  | `kubectl delete node`               | Delete the node                                                                                  |
-|         |                                   | **Persistent Volume Claim management**                                                           |
-| kgpvc   | `kubectl get pvc`                   | List all PVCs                                                                                    |
-| kgpvcw  | `kgpvc --watch`                     | After listing/getting the requested object, watch for changes                                    |
-| kepvc   | `kubectl edit pvc`                  | Edit pvcs from the default editor                                                                |
-| kdpvc   | `kubectl describe pvc`              | Descirbe all pvcs                                                                                |
-| kdelpvc | `kubectl delete pvc`                | Delete all pvcs matching passed arguments                                                        |
-|         |                                     |                                                                                                  |
-| kgss    | `kubectl get statefulset`           | List the statefulsets in ps format                                                               |
-| kgssw   | `kgss --watch`                      | After getting the list of statefulsets, watch for changes                                        |
-| kgsswide| `kgss -o wide`                      | After getting the statefulsets, output in plain-text format with any additional information      |
-| kess    | `kubectl edit statefulset`          | Edit statefulset resource from the default editor                                                |
-| kdss    | `kubectl describe statefulset`      | Describe statefulset resource in detail                                                          |
-| kdelss  | `kubectl delete statefulset`        | Delete the statefulset                                                                           |
-| ksss    | `kubectl scale statefulset`         | Scale a statefulset                                                                              |
-| krsss   | `kubectl rollout status statefulset`| Check the rollout status of a deployment                                                         |
+| kgdwide | `kgd -o wide`                       | 获取 deployment 之后，以纯文本格式输出包含额外信息的内容        |
+| ked     | `kubectl edit deployment`           | 使用默认编辑器编辑 deployment                                                 |
+| kdd     | `kubectl describe deployment`       | 详细描述 deployment 资源                                                           |
+| kdeld   | `kubectl delete deployment`         | 删除 deployment 资源                                                                            |
+| ksd     | `kubectl scale deployment`          | 扩展 deployment                                                                               |
+| krsd    | `kubectl rollout status deployment` | 检查 deployment 的部署状态                                                         |
+| kres    | `kubectl set env $@ REFRESHED_AT=...` | 零停机时间重新创建 deployment 中的所有 Pod                                                         |
+|         |                                     | **Rollout 管理**                                                                           |
+| kgrs    | `kubectl get rs`                    | 查看 deployment 创建的 ReplicaSet `rs`                                             |
+| krh     | `kubectl rollout history`           | 检查此 deployment 的变更历史记录                                                           |
+| kru     | `kubectl rollout undo`              | 回滚到上一个修订版                                                                |
+|         |                                     | **端口转发**                                                                              |
+| kpf     | `kubectl port-forward`              | 将一个或多个本地端口转发到 Pod                                                         |
+|         |                                     | **用于访问所有信息的工具**                                                          |
+| kga     | `kubectl get all`                   | 以 ps 格式列出所有资源                                                                  |
+| kgaa    | `kubectl get all --all-namespaces`  | 列出所有 namespace 中的请求对象                                               |
+|         |                                     | **日志**                                                                                         |
+| kl      | `kubectl logs`                      | 打印容器或资源的日志                                                       |
+| klf     | `kubectl logs -f`                   | 流式传输容器或资源的日志（实时）                                             |
+|         |                                     | **文件拷贝**                                                                                    |
+| kcp     | `kubectl cp`                        | 在容器之间复制文件和目录                                                |
+|         |                                     | **Node 管理**                                                                              |
+| kgno    | `kubectl get nodes`                 | 以 ps 格式列出所有 node                                                               |
+| keno    | `kubectl edit node`                 | 使用默认的编辑器编辑 node                                                      |
+| kdno    | `kubectl describe node`             | 详细描述 node 资源                                                                 |
+| kdelno  | `kubectl delete node`               | 删除 node                                                                                  |
+|         |                                   | **Persistent Volume Claim 管理**                                                           |
+| kgpvc   | `kubectl get pvc`                   | 列出所有 PVC                                                                                    |
+| kgpvcw  | `kgpvc --watch`                     | 列出所有请求对象并观察实时状态                                    |
+| kepvc   | `kubectl edit pvc`                  | 使用默认编辑器编辑 PVC                                                                |
+| kdpvc   | `kubectl describe pvc`              | 显示所有 PVC 的描述                                                                                |
+| kdelpvc | `kubectl delete pvc`                | 删除所有与传入参数匹配的 PVC                                                        |
+|         |                                   | **Statefulset 管理**                                                           |
+| kgss    | `kubectl get statefulset`           | 以 ps 格式列出所有 statefulset                                                               |
+| kgssw   | `kgss --watch`                      | 获取 statefulset 列表，并观察实时状态                                        |
+| kgsswide| `kgss -o wide`                      | 获取 statefulset，并以纯文本格式输出包含其他信息的内容      |
+| kess    | `kubectl edit statefulset`          | 使用默认的编辑器编辑 statefulset                                                |
+| kdss    | `kubectl describe statefulset`      | 详细描述 statefulset 资源                                                          |
+| kdelss  | `kubectl delete statefulset`        | 删除 statefulset                                                                           |
+| ksss    | `kubectl scale statefulset`         | 扩展 statefulset                                                                              |
+| krsss   | `kubectl rollout status statefulset`| 检查 deployment 的回滚状态                                                         |
 
 ### 参考
 
