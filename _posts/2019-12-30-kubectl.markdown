@@ -21,6 +21,26 @@ source <(kubectl completion zsh)
 $ source .zshrc
 ```
 
+### 常用命令示例
+
+```bash
+# 输出格式
+$ kgp -n kube-system -o name
+
+# 输出镜像
+$ kgp --all-namespaces -o jsonpath="{.items[*].spec.containers[*].image}"
+$ kgp --namespace kube-system -o jsonpath="{..image}"
+$ kgp -n kube-system metrics-server-6d684c7b5-2jmd9 -o jsonpath="{.spec.containers[*].image}"; echo
+
+# 过滤
+$ kgp -n kube-system --field-selector=status.phase="Running"
+$ kgp -n kube-system --field-selector=status.phase!="Running"
+
+# 排序
+$ kgp -n kube-system --sort-by=.metadata.name
+$ kgp -n kube-system --sort-by=.status.phase
+```
+
 ### Kubectl plugin
 
 > 关于此插件的粗略翻译
