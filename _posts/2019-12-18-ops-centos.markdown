@@ -134,3 +134,28 @@ plugins=(
 )
 ➜  ~ source .zshrc
 ```
+
+### 安装 docker
+
+```bash
+# 卸载旧版本
+$ sudo yum remove docker \
+                  docker-client \
+                  docker-client-latest \
+                  docker-common \
+                  docker-latest \
+                  docker-latest-logrotate \
+                  docker-logrotate \
+                  docker-engine
+
+# 安装新版本
+$ curl -fsSL https://get.docker.com -o get-docker.sh
+$ sudo sh get-docker.sh
+
+# 授权普通用户使用 docker 
+sudo usermod -aG docker weifeilong
+```
+
+### 参考
+
+* [docker-ce](https://docs.docker.com/install/linux/docker-ce/centos/#install-using-the-convenience-script)
