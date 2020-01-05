@@ -19,6 +19,9 @@ plugins=(git zsh-autosuggestions kubectl)
 source <(kubectl completion zsh)
 
 $ source .zshrc
+
+# 针对多 contexts 进行管理，可以开启 kube-ps1
+# https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kube-ps1
 ```
 
 ### 常用命令示例
