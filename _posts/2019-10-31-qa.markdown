@@ -42,3 +42,7 @@ Q: Rancher 的常见故障
 Q: Kubernetes 是如何保障高可用的
 
 Q: Docker 和 Containerd 有什么区别？
+
+Q: ipvs vs iptables
+
+Q: k8s 中暴露服务的几种方式
