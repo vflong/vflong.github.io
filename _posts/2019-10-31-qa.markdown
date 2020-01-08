@@ -9,7 +9,7 @@ categories: sre
 
 ## 问题清单
 
-Q: 交换机和路由器的区别是什么？分别工作在第几层？一层、二层、三层、四层分别指什么？
+### Docker
 
 Q: Docker 存储驱动
 
@@ -23,13 +23,27 @@ Q: What is the difference between CMD and ENTRYPOINT in a Dockerfile?
 
 Q: Docker 运行在操作系统中，如何保障安全性？
 
+Q: Docker 的网络模式
+
+Q: Docker 的原理，如何实现资源隔离与限制
+
+Q: Docker 和 Containerd 有什么区别？
+
+### Kubernetes
+
+Q: Kubernetes 的架构，流畅描述
+
 Q: Kubernetes 的网络插件种类及其区别
 
 Q: Kubernetes 的探针种类及区别
 
 Q: Kubernetes 中 Deployment 与 Statefulset 的区别
 
-Q: Kubernetes 中的 service 中的 headless 是什么？
+Q: Kubernetes 中的网络插件，flannel 原理
+
+Q: Kubernetes 中的 Service 暴露服务的种类
+
+Q: Kubernetes 中的 Service 中的 headless 是什么？
 
 Q: Kubernetes 中的 kube-dns 组件如果挂了，内部容器是否能够访问外网？
 
@@ -37,16 +51,23 @@ Q: Kubernetes 保存密码的方式
 
 Q: Kubernetes 的存储种类
 
-Q: Rancher 的常见故障
-
 Q: Kubernetes 是如何保障高可用的
-
-Q: Docker 和 Containerd 有什么区别？
 
 Q: ipvs vs iptables
 
-Q: k8s 中暴露服务的几种方式
+Q: Kubernetes 中暴露服务的几种方式
+
+Q: Rancher 的常见故障
+
+### Linux
+
+Q: 排查磁盘 IO 
 
 Q: Linux 排查网络问题的工具
 
 Q: Linux 排查进程不稳定的方式
+
+### 网络
+
+Q: 交换机和路由器的区别是什么？分别工作在第几层？一层、二层、三层、四层分别指什么？
+
