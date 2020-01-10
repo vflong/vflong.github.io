@@ -55,9 +55,9 @@ Q: Kubernetes 是如何保障高可用的
 
 Q: ipvs vs iptables
 
-Q: Kubernetes 中暴露服务的几种方式
+Q: Kubernetes 的常见故障
 
-Q: Rancher 的常见故障
+Q: Ingress 的原理
 
 ### Linux
 
