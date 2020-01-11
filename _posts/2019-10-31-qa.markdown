@@ -59,6 +59,10 @@ Q: Kubernetes 的常见故障
 
 Q: Ingress 的原理
 
+Q: Pod 的生命周期
+
+Q: 如何利用 postStart 与 postStop
+
 ### Linux
 
 Q: 排查磁盘 IO 
