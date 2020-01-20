@@ -11,11 +11,11 @@ categories: sre
 
 命令种类：
 
-* 声明式资源管理
-* 命令式资源管理
-* 输出工作负载状态
-* 容器交互
-* 集群管理
+* 声明式资源管理（Declarative Resource Management）
+* 命令式资源管理（Imperative Resource Management）
+* 输出工作负载状态（Printing Workload State）
+* 容器交互（Interacting with Containers）
+* 集群管理（Cluster Management）
 
 ### 命令行环境配置
 
