@@ -17,6 +17,26 @@ categories: sre
 * 容器交互（Interacting with Containers）
 * 集群管理（Cluster Management）
 
+资源和控制器
+
+* Kubernetes API 由两部分组成 - 资源类型和控制前
+* 资源是以 Json 或 Yaml 声明并写入集群的对象
+* 控制器在存储资源后异步启动资源
+
+Kubernetes 对象的实例（例如部署、服务、命名空间等）成为资源。运行容器的资源被称为工作负载。
+
+控制器启动 Kubernetes API。他们观察系统的状态，并寻找对资源的期望状态（创建、更新、删除）或系统（Pod 或 Node 挂掉）的更改。
+
+Pod 运行应用的单副本并提供：
+
+* 计算资源（CPU、内存、磁盘）
+* 环境变量
+* 就绪和健康检查
+* 网络（容器内 Pod 共享 IP 地址）
+* 挂载共享配置和密钥
+* 挂载存储卷
+* 初始化
+
 ### 命令行环境配置
 
 ```bash
