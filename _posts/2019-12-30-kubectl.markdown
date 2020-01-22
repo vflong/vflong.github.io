@@ -37,6 +37,8 @@ Pod 运行应用的单副本并提供：
 * 挂载存储卷
 * 初始化
 
+kustomization 可以使用 `namePrefix` 和 `nameSuffix` 为所有资源设置名称前缀或后缀。
+
 ### 命令行环境配置
 
 ```bash
