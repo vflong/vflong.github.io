@@ -23,6 +23,8 @@ categories: sre
 * 资源是以 Json 或 Yaml 声明并写入集群的对象
 * 控制器在存储资源后异步启动资源
 
+### 应用管理
+
 Kubernetes 对象的实例（例如部署、服务、命名空间等）成为资源。运行容器的资源被称为工作负载。
 
 控制器启动 Kubernetes API。他们观察系统的状态，并寻找对资源的期望状态（创建、更新、删除）或系统（Pod 或 Node 挂掉）的更改。
@@ -38,6 +40,13 @@ Pod 运行应用的单副本并提供：
 * 初始化
 
 kustomization 可以使用 `namePrefix` 和 `nameSuffix` 为所有资源设置名称前缀或后缀。
+
+### 获取资源信息
+
+```bash
+# 输出指定字段
+$ kubectl get deployments -o custom-columns="Name:metadata.name,Replicas:spec.replicas,Strategy:spec.strategy.type"
+```
 
 ### 命令行环境配置
 
@@ -188,3 +197,4 @@ plugins=(... kubectl)
 ### 参考
 
 * [Kubectl plugin](https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/kubectl)
+* [kubectl](https://kubectl.docs.kubernetes.io/)
