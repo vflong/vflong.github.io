@@ -46,6 +46,29 @@ kustomization 可以使用 `namePrefix` 和 `nameSuffix` 为所有资源设置�
 ```bash
 # 输出指定字段
 $ kubectl get deployments -o custom-columns="Name:metadata.name,Replicas:spec.replicas,Strategy:spec.strategy.type"
+
+# 忽略报错信息
+kubectl get deployment nginx --ignore-not-found
+
+# --watch vs --watch-only
+$ kubectl get deployments --watch
+$ kubectl get deployments --watch-only
+
+# 获取用法
+$ kubectl explain deployment --api-version apps/v1
+```
+
+### 容器排障
+
+```bash
+# 打印之前的日志
+$ kubectl logs -p nginx-6db489d4b7-v59zm -c nginx
+
+# 代理
+$ kubectl proxy
+Starting to serve on 127.0.0.1:8001
+# 访问服务 http://<apiserver-address>/api/v1/namespaces/<service-namespace>/services/[https:]<service-name>[:<port-name>]/proxy
+$ curl "http://127.0.0.1:8001/api/v1/namespaces/logcenter-cluster/services/kafka-manager:9000/proxy" -I
 ```
 
 ### 命令行环境配置
