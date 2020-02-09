@@ -197,7 +197,7 @@ $ kubectl port-forward service/<service_name> 3000:80
 
 其中：
 
-* `service/<service_name> 是 service 的名称 - 在当前 YAML 中是“my-service”。
+* `service/<service_name>` 是 service 的名称 - 在当前 YAML 中是“my-service”。
 * 3000 是您想要在您的电脑中开放的端口
 * 80 是 Service 中 `port` 字段暴露的端口
 
