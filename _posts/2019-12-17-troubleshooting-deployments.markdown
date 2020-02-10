@@ -91,7 +91,7 @@ spec:
 
 ### 连接 Deployment 和 Service
 
-令人惊讶的消息是服务和部署根本没有连接。
+令人惊讶的消息是 Service 和 Deployment 根本没有连接。
 
 相反，Service 端直接连接了 Pod，完全跳过了 Deployment。
 
@@ -121,6 +121,7 @@ spec:
 ![troubleshooting-kubernetes-8](/assets/img/troubleshooting-kubernetes-8.svg)
 
 如果您查看 YAML 文件，可以发现标签和 `ports`/`targetPort` 应该匹配：
+
 `hello-world.yaml`
 
 ```yaml
@@ -230,10 +231,11 @@ Ingress 和 Service 中的两个属性应该匹配：
 1. Service 的 `port` 和 Ingress 的 `servicePort` 应该总是匹配。
 ![troubleshooting-kubernetes-11](/assets/img/troubleshooting-kubernetes-11.svg)
 
-1. 如果您决定分配端口 80 给 service，你应该也修改 `servicePort` 为 80。
+1. 如果您决定分配端口 80 给 service，您应该也修改 `servicePort` 为 80。
 ![troubleshooting-kubernetes-12](/assets/img/troubleshooting-kubernetes-12.svg)
 
-在实践中，您应该查看一下几行：
+在实践中，您应该查看以下几行：
+
 `hello-world.yaml`
 
 ```yaml
@@ -264,7 +266,7 @@ spec:
 
 您该如何测试 Ingress 的功能？
 
-您可以对 `kubectl port-forward` 使用与之前相同的策略，但是应该连接到 Ingress 控制器，而不是连接到 service。
+您可以对 `kubectl port-forward` 使用与之前相同的策略，但是应该连接到 Ingress 控制器，而不是连接到 Service。
 
 首先，使用以下命令获取 Ingress 控制器的 Pod 名称：
 
@@ -303,8 +305,8 @@ $ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube
 
 快速回顾一下哪些端口和标签应该匹配：
 
-1. Service selector 应该匹配 Pod 的标签
-1. Serice 的 `targetPort` 应该匹配 Pod 中容器的 `containerPort`
+1. Service selector 应该匹配 Pod 的 label
+1. Service 的 `targetPort` 应该匹配 Pod 中容器的 `containerPort`
 1. Service 的 port 可以是任意值。多个 Service 可以使用相同的 port，因为它们被分配了不通的 IP 地址
 1. Ingress 的 `servicePort` 应该匹配 Service 的 `port`
 1. Service 的 `name` 应该匹配 Ingress 的 `serviceName`
