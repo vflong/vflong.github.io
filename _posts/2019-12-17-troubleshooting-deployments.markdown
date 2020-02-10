@@ -206,3 +206,113 @@ $ kubectl port-forward service/<service_name> 3000:80
 如果您不能，那么您很可能配错了一个标签或者端口不匹配。
 
 ### 连接 Service 和 Ingress
+
+下一步暴露您的应用的步骤是配置 Ingress。
+
+Ingress 必须知道如何获取到 Service 然后获取到 Pod 并路由流量到它们。
+
+Ingress 获取根据名称和暴露的端口获取到正确的 Service。
+
+Ingress 和 Service 中的两个属性应该匹配：
+
+1. Ingress 的 `servicePort` 应该匹配 Service 中的 `port`
+1. Ingress 中的 `serviceName`  应该匹配 Service 中的 `name`
+
+下图总结了如何连接端口：
+
+1. 您已经知道 Service 暴露了一个 `port`。
+![troubleshooting-kubernetes-9](/assets/img/troubleshooting-kubernetes-9.svg)
+
+
+1. Ingress 中有一个字段叫做 `servicePort`。
+![troubleshooting-kubernetes-10](/assets/img/troubleshooting-kubernetes-10.svg)
+
+1. Service 的 `port` 和 Ingress 的 `servicePort` 应该总是匹配。
+![troubleshooting-kubernetes-11](/assets/img/troubleshooting-kubernetes-11.svg)
+
+1. 如果您决定分配端口 80 给 service，你应该也修改 `servicePort` 为 80。
+![troubleshooting-kubernetes-12](/assets/img/troubleshooting-kubernetes-12.svg)
+
+在实践中，您应该查看一下几行：
+`hello-world.yaml`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    any-name: my-app
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  rules:
+  - http:
+    paths:
+    - backend:
+        serviceName: my-service
+        servicePort: 80
+      path: /
+```
+
+您该如何测试 Ingress 的功能？
+
+您可以对 `kubectl port-forward` 使用与之前相同的策略，但是应该连接到 Ingress 控制器，而不是连接到 service。
+
+首先，使用以下命令获取 Ingress 控制器的 Pod 名称：
+
+```bash
+$ kubectl get pods --all-namespaces
+NAMESPACE   NAME                              READY STATUS
+kube-system coredns-5644d7b6d9-jn7cq          1/1   Running
+kube-system etcd-minikube                     1/1   Running
+kube-system kube-apiserver-minikube           1/1   Running
+kube-system kube-controller-manager-minikube  1/1   Running
+kube-system kube-proxy-zvf2h                  1/1   Running
+kube-system kube-scheduler-minikube           1/1   Running
+kube-system nginx-ingress-controller-6fc5bcc  1/1   Running
+```
+
+找出 Ingress Pod（可能在其他 Namespace 中）并描述它以获取端口：
+
+```bash
+$ kubectl describe pod nginx-ingress-controller-6fc5bcc \
+ --namespace kube-system \
+ | grep Ports
+Ports:         80/TCP, 443/TCP, 18080/TCP
+```
+
+最后，连接 Pod：
+
+```bash
+$ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube-system
+```
+
+此时，每次您访问计算机上的端口 3000 时，请求都会转发到 Ingress 控制器 Pod 上的端口 80。
+
+如果您访问 [http://localhost:3000](http://localhost:3000)，则应该可以找到提供网页的应用程序。
+
+### 关于 port 的总结回顾
+
+快速回顾一下哪些端口和标签应该匹配：
+
+1. Service selector 应该匹配 Pod 的标签
+1. Serice 的 `targetPort` 应该匹配 Pod 中容器的 `containerPort`
+1. Service 的 port 可以是任意值。多个 Service 可以使用相同的 port，因为它们被分配了不通的 IP 地址
+1. Ingress 的 `servicePort` 应该匹配 Service 的 `port`
+1. Service 的 `name` 应该匹配 Ingress 的 `serviceName`
+
+知道如何构造 YAML 定义只是故事的一部分。
+
+出了问题怎么办？
+
+Pod 可能无法启动，或者正在崩溃。
+
+### 排除 Kubernetes deployment 故障的 3 个步骤
