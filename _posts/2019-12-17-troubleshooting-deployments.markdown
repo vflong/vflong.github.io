@@ -89,7 +89,7 @@ spec:
 
 我们从 Deployment 和 Service 开始。
 
-### 连接 Deployment 和 Service
+# 连接 Deployment 和 Service
 
 令人惊讶的消息是 Service 和 Deployment 根本没有连接。
 
@@ -206,7 +206,7 @@ $ kubectl port-forward service/<service_name> 3000:80
 
 如果您不能，那么您很可能配错了一个标签或者端口不匹配。
 
-### 连接 Service 和 Ingress
+# 连接 Service 和 Ingress
 
 下一步暴露您的应用的步骤是配置 Ingress。
 
@@ -301,7 +301,7 @@ $ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube
 
 如果您访问 [http://localhost:3000](http://localhost:3000)，则应该可以找到提供网页的应用程序。
 
-### 关于 port 的总结回顾
+# 关于 port 的总结回顾
 
 快速回顾一下哪些端口和标签应该匹配：
 
@@ -317,4 +317,55 @@ $ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube
 
 Pod 可能无法启动，或者正在崩溃。
 
-### 排除 Kubernetes deployment 故障的 3 个步骤
+# 排查 Kubernetes deployment 故障的 3 个步骤
+
+在深入 Debug 崩溃的 Deployment 之前，必须把 Kubernetes 的工作方式铭记于心。
+
+由于每个 deployment 包含 3 个组件，因此您必须从底层开始一次 debug 这些组件。
+
+1. 您应该确保 Pod 处于 running 状态，然后
+1. 专注于让服务将流量路由到 Pod，然后
+1. 检查 Ingress 配置是否正确
+
+详细操作如下：
+
+1. 您应该从底层开始对 Deployment 进行故障排查。首先检查 Pod 就绪并正在运行。
+![troubleshooting-kubernetes-13](/assets/img/troubleshooting-kubernetes-13.svg)
+
+1. 如果 Pod 已就绪，则应调查服务是否可以将流量分配到 Pod。
+![troubleshooting-kubernetes-14](/assets/img/troubleshooting-kubernetes-14.svg)
+
+1. 最后您应该检查 Service 与 Ingress 之间的连接
+![troubleshooting-kubernetes-15](/assets/img/troubleshooting-kubernetes-15.svg)
+
+
+## 1. 排查 Pod
+
+
+### 常见 Pod 错误
+
+
+#### ImagePullBackOff
+
+
+#### CrashLoopBackOff
+
+
+#### RunContainerError
+
+
+#### Pod 处于 *Pending* 状态
+
+
+#### Pod 未处于 *Ready* 状态
+
+
+## 2. 排查 Service
+
+
+## 3. 排查 Ingress
+
+### 调试 Ingress Nginx
+
+
+# 总结
