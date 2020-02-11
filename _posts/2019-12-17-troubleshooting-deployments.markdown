@@ -14,9 +14,9 @@ categories: sre
 
 * Deployment - 这是创建名为 Pod 的应用程序副本的菜谱
 * Service - 内部负载均衡器，将流量路由到 Pods
-* Ingress - 有关流量如何从集群外部流向你的服务的描述
+* Ingress - 有关流量如何从集群外部流向您的服务的描述
 
-下面是快速的回放。
+下面是快速的回顾。
 
 1. 在 Kubernetes 中，应用程序通过两层负载均衡暴露：内部和外部。
 ![troubleshooting-kubernetes-1](/assets/img/troubleshooting-kubernetes-1.svg)
@@ -162,7 +162,7 @@ Deployment 部分中的 `track: canary` 是什么意思？
 
 那也应该匹配吗？
 
-该标签属于 Deployment，Service 的选择器（selector）不适用它来路由流量。
+该标签属于 Deployment，Service 的选择器（selector）不使用它来路由流量。
 
 换句话说，您可以安全地删除或为其分配其他值。
 
@@ -321,7 +321,7 @@ Pod 可能无法启动，或者正在崩溃。
 
 在深入 Debug 崩溃的 Deployment 之前，必须把 Kubernetes 的工作方式铭记于心。
 
-由于每个 deployment 包含 3 个组件，因此您必须从底层开始一次 debug 这些组件。
+由于每个 deployment 包含 3 个组件，因此您必须从底层开始依次 debug 这些组件。
 
 1. 您应该确保 Pod 处于 running 状态，然后
 1. 专注于让服务将流量路由到 Pod，然后
