@@ -498,7 +498,7 @@ Service 旨在根据 Pod 的标签将流量路由至 Pod。
 $ kubectl describe service <service-name> | grep Endpoints
 ```
 
-endpoint 是一对 <ip address: port>，并且在 Service（至少）有一个 Pod，当 Service 以 Pod 为目标时。
+endpoint 是一对 `<ip address: port>`，并且在 Service（至少）有一个 Pod，当 Service 以 Pod 为目标时。
 
 如果“Endpoints”部分为空，则有两种解释：
 
