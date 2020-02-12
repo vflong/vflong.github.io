@@ -339,8 +339,39 @@ Pod 可能无法启动，或者正在崩溃。
 ![troubleshooting-kubernetes-15](/assets/img/troubleshooting-kubernetes-15.svg)
 
 
-## 1. 排查 Pod
+## 1. 排查 Pod 故障
 
+大部分情况下，问题出现在 Pod 自身。
+
+您应该确认您的 Pod 已经处于 *Running* 和 *Ready* 状态。
+
+您如何开始检查？
+
+```bash
+$ kubectl get pods
+NAME                    READY STATUS            RESTARTS  AGE
+app1                    0/1   ImagePullBackOff  0         47h
+app2                    0/1   Error             0         47h
+app3-76f9fcd46b-xbv4k   1/1   Running           1         47h
+
+```
+
+在上面的会话中，最后一个 Pod 已经处于 *Running* 和 *Ready* 状态 —— 然而，前两个 Pod 并未处于 *Running* 或 *Ready* 状态。
+
+*您如何调查出了什么问题？*
+
+有 4 个常用的命令可以用来排查 Pod 故障：
+
+1. `kubectl logs <pod name>` 有助于获取 Pod  容器的日志
+1. `kubectl describe pod <pod name>` 用于获取 Pod 相关的事件列表
+1. `kubectl get po <pod name>` 用于提取存储在 Kubernetes 中的 Pod 的 YAML 定义
+1. `kubectl exec -it <pod name> bash` 用于在 Pod 内的容器中运行一个交互式命令
+
+您应该选择哪一个？
+
+没有一个命令是万能的。
+
+相反，您应该结合使用它们。
 
 ### 常见 Pod 错误
 
