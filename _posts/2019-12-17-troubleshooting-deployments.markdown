@@ -375,24 +375,151 @@ app3-76f9fcd46b-xbv4k   1/1   Running           1         47h
 
 ### 常见 Pod 错误
 
+Pod 可能会出现启动或运行时错误。
+
+启动错误如下：
+
+* ImagePullBackOff
+* ImageInspectError
+* ErrImagePull
+* ErrImageNeverPull
+* RegistryUnavailavle
+* InvalidImageName
+
+运行时错误如下：
+
+* CrashLoopBackOff
+* RunContainerError
+* KillContainerError
+* VerifyNonRootError
+* RunInitContainerError
+* CreatePodSandboxError
+* ConfigPodSandboxError
+* KillPodSandboxError
+* SetupNetworkError
+* TeardownNetworkError
+
+有些错误比其他错误更常见。
+
+以下是最常见的错误以及如何修复它们的列表。
 
 #### ImagePullBackOff
 
+这个错误出现的原因是 Kubernetes 不能拉取到 Pod 中的一个容器的镜像。
+
+有以下 3 中常见的原因：
+
+1. 镜像名称无效 —— 例如，您错误输入了名称，或者镜像不存在
+1. 您为镜像指定了一个不存在的 tag
+1. 您试图拉取的镜像属于一个私有注册中心，并且 Kubernetes 没有权限访问它
+
+前两种情况可以通过修正镜像名称和 tag 来解决。
+
+对于最后一种情况，您应该将凭证添加到 Secret 中的私有注册中心，并在 Pod 中引用它。
+
+[官方文档中有一个如何实现此目标的示例。](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
 
 #### CrashLoopBackOff
 
+如果容器无法启动，则 Kubernetes 将 CrashLoopBackOff 消息显示为状态。
+
+通常，在以下情况下容器无法启动：
+
+1. 应用程序中存在错误，导致无法启动
+1. 您[未正确配置容器](https://stackoverflow.com/questions/41604499/my-kubernetes-pods-keep-crashing-with-crashloopbackoff-but-i-cant-find-any-lo)
+1. Liveness 探针失败次数过多
+
+您应该尝试从该容器中获取日志以调查其失败的原因。
+
+如果由于容器重启太快而看不到日志，则可以使用以下命令：
+
+```bash
+$ kubectl logs <pod-name> --previous
+```
+
+以上命令会打印前一个容器错误信息。
 
 #### RunContainerError
 
+当容器无法启动时出现错误。
+
+设置在容器内的应用程序启动之前。
+
+该问题通常是由于配置错误，例如：
+
+* 挂载不存在的卷，例如 ConfigMap 或 Secrets
+* 将只读卷挂载为可读写
+
+您应该使用 `kubectl describe pod <pod-name> ` 来收集并分析错误信息。
 
 #### Pod 处于 *Pending* 状态
 
+当您创建一个 Pod 时，该 Pod 保持处于 *Pending* 状态。
+
+为什么？
+
+假设您的调度程序组件运行良好，原因如下：
+
+1. 集群没有足够的资源（例如 CPU 和内存）来运行 Pod
+1. 当前的 Namespace 具有 ResourceQuota 对象，创建 Pod 将使 Namespace 超过配额
+1. 该 Pod 绑定到了一个处于 *Pending* 状态的 PersistenVolumeClain
+
+最好的选择是检查 `kubectl describe` 命令中的 *Events* 部分：
+
+```bash
+$ kubectl describe pod <pod name>
+```
+
+对于由于 ResourceQuotas 而造成的错误，可以使用以下方法检查集群日志：
+
+```bash
+$ kubectl get events --sort-by=.metadata.creationTimestamp
+```
 
 #### Pod 未处于 *Ready* 状态
 
+如果一个 Pod 处于 *Running* 状态但并未 *Ready*，这说明 Readiness 探针失败了。
 
-## 2. 排查 Service
+当 Readiness 探针失败时，Pod 未连接到 Service，并且没有流量转发到该实例。
 
+Readiness 探针失败是特定于应用程序的错误，因此您应该检查 `kubectl describe` 中的 *Events* 部分以找出错误。
+
+## 2. 排查 Service 故障
+
+如果 Pod 处于 Running 状态并 *Ready*，但仍无法收到应用程序的相应，则应检查 Service 的配置是否正确。
+
+Service 旨在根据 Pod 的标签将流量路由至 Pod。
+
+因此，您应该检查的第一件事是 Service 匹配了多少 Pod。
+
+您可以通过检查 Service 中的 Endpoint 来做到这一点：
+
+```bash
+$ kubectl describe service <service-name> | grep Endpoints
+```
+
+endpoint 是一对 <ip address: port>，并且在 Service（至少）有一个 Pod，当 Service 以 Pod 为目标时。
+
+如果“Endpoints”部分为空，则有两种解释：
+
+1. 您并没有运行带有正确标签的 Pod（提示：您应检查自己是否在正确的 namespace）
+2. 您在 Service 的 `selector` 的标签中有错别字
+
+如果您看到了 endpoints 列表，但仍然无法访问您的应用程序，则 service 中的 `targetPort` 可能是罪魁祸首。
+
+您如何测试服务？
+
+无论服务类型如何，都可以使用 `kubectl port-forward` 连接到它：
+
+```bash
+$ kubectl port-forward service/<service-name> 3000:80
+```
+
+其中：
+
+* `<service-name>` 是 Service 的名称
+* `3000` 是您希望在您的电脑上开放的端口
+* `80` 是 Service 暴露的端口
 
 ## 3. 排查 Ingress
 
