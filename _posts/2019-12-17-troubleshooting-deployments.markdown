@@ -591,8 +591,8 @@ $ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube
 
 现在工作正常吗？
 
-* 如果可行，则问题出在基础架构中。您应该调查流量是如何路由到集群的。
-* 如果不可行，则问题出在 Ingress 控制器中。您应该调试 Ingress。
+* 如果工作正常，则问题出在基础架构中。您应该调查流量是如何路由到集群的。
+* 如果工作不正常，则问题出在 Ingress 控制器中。您应该调试 Ingress。
 
 如果仍然无法使 Ingress 控制器正常工作，则应开始对其调试。
 
@@ -617,8 +617,8 @@ Ingress-nginx 项目具有 [Kubectl 官方插件](https://kubernetes.github.io/i
 您应该尝试的 3 个命令是：
 
 * `kubectl ingress-nginx lint`，用于检查 `nginx.conf`
-* `kubectl ingress-nginx backend`，用于检查后端（类似于 `kubectl describe ingress <ingress-name>）
-* `kubectl ingress-nginx logs` 用于查看日志
+* `kubectl ingress-nginx backend`，用于检查后端（类似于 `kubectl describe ingress <ingress-name>`）
+* `kubectl ingress-nginx logs`， 用于查看日志
 
 > 请注意，您可能需要使用 `--namespace <name>` 为 Ingress 控制器指定正确的 namespace。
 
@@ -626,7 +626,7 @@ Ingress-nginx 项目具有 [Kubectl 官方插件](https://kubernetes.github.io/i
 
 如果您不知道从哪里开始，在 Kubernetes 中进行故障排除可能是一项艰巨的任务。
 
-您应该牢记从下至上解决问题：从 Pod 开始，然后通过 Service 和 Ingress 向上推进排查。
+您应该始终牢记从下至上解决问题：从 Pod 开始，然后通过 Service 和 Ingress 向上推进排查。
 
 您在本文中了解到的同样的调试技术可以应用于其他对象，例如：
 
