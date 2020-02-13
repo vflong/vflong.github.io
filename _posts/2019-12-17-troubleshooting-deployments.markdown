@@ -521,9 +521,116 @@ $ kubectl port-forward service/<service-name> 3000:80
 * `3000` 是您希望在您的电脑上开放的端口
 * `80` 是 Service 暴露的端口
 
-## 3. 排查 Ingress
+## 3. 排查 Ingress 故障
+
+如果您已到达本节，则：
+
+* Pod 处于 *Running* 状态并 *Ready*
+* Service 将流量分配到了 Pod
+
+但是您仍然看不到应用程序的响应。
+
+这意味着最有可能是 Ingress 配置错误。
+
+由于正在使用的 Ingress 控制器是集群中的第三方组件，因此针对 Ingress 控制器的类型有不同的调试技术。
+
+但是在深入研究 Ingress 专用工具之前，您可以使用一些简单的方法来检查。
+
+Ingress 使用 serviceName 和 servicePort 连接到 Service。
+
+您应该检查这些配置是否正确。
+
+你可以使用以下命令检查 Ingress 是否配置正确：
+
+```bash
+$ kubectl describe ingress <ingress-name>
+```
+
+如果 *Backend* 列表为空，则配置中必有一个错误。
+
+如果您可以在 *Backend* 列中看到 endpoint，但是仍然无法访问该应用程序，则可能是以下问题：
+
+* 您如何将 Ingress 暴露到互联网
+* 您如何将集群暴露到互联网
+
+您可以通过直连 Ingress Pod 将基础设施问题与 Ingress 隔离开来。
+
+首先，获取 Ingress 控制器的 Pod 名称（可以位于其他 namespace）：
+
+```bash
+$ kubectl get pods --all-namespaces
+NAMESPACE   NAME                              READY STATUS
+kube-system coredns-5644d7b6d9-jn7cq          1/1   Running
+kube-system etcd-minikube                     1/1   Running
+kube-system kube-apiserver-minikube           1/1   Running
+kube-system kube-controller-manager-minikube  1/1   Running
+kube-system kube-proxy-zvf2h                  1/1   Running
+kube-system kube-scheduler-minikube           1/1   Running
+kube-system nginx-ingress-controller-6fc5bcc  1/1   Running
+
+$ 
+```
+
+描述它以获取端口：
+
+```bash
+$ kubectl describe pod nginx-ingress-controller-6fc5bcc
+ --namespace kube-system \
+ | grep Ports
+
+$ 
+```
+
+最后，连接到 Pod：
+
+```bash
+$ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube-system
+```
+
+此时，您每次访问计算机上的端口 3000 时，请求都会转发到 Pod 上的端口 80。
+
+现在工作正常吗？
+
+* 如果可行，则问题出在基础架构中。您应该调查流量是如何路由到集群的。
+* 如果不可行，则问题出在 Ingress 控制器中。您应该调试 Ingress。
+
+如果仍然无法使 Ingress 控制器正常工作，则应开始对其调试。
+
+有许多不同版本的 Ingress 控制器。
+
+热门选择包括 Nginx、HAProxy、Traefik 等。
+
+您应该查阅 Ingress 控制器的文档以查找故障排除指南。
+
+由于 [Ingress Nginx](https://github.com/kubernetes/ingress-nginx) 是最受欢迎的 Ingress 控制器，因此在下一部分中我们将介绍一些技巧。
 
 ### 调试 Ingress Nginx
 
+Ingress-nginx 项目具有 [Kubectl 官方插件](https://kubernetes.github.io/ingress-nginx/kubectl-plugin/)。
+
+您可以使用 `kubectl ingress-nginx` 来：
+
+* 查看日志、后端服务、证书等。
+* 连接到 Ingress
+* 检查当前配置
+
+您应该尝试的 3 个命令是：
+
+* `kubectl ingress-nginx lint`，用于检查 `nginx.conf`
+* `kubectl ingress-nginx backend`，用于检查后端（类似于 `kubectl describe ingress <ingress-name>）
+* `kubectl ingress-nginx logs` 用于查看日志
+
+> 请注意，您可能需要使用 `--namespace <name>` 为 Ingress 控制器指定正确的 namespace。
 
 # 总结
+
+如果您不知道从哪里开始，在 Kubernetes 中进行故障排除可能是一项艰巨的任务。
+
+您应该牢记从下至上解决问题：从 Pod 开始，然后通过 Service 和 Ingress 向上推进排查。
+
+您在本文中了解到的同样的调试技术可以应用于其他对象，例如：
+
+* 失败的 Job 和 CronJob
+* StatefulSet 和 DaemonSets
+
+非常感谢 [Gergely Risko](https://github.com/errge)、[Daniel Weibel](https://medium.com/@weibeld) 和 [Charles Christyraj](https://www.linkedin.com/in/charles-christyraj-0bab8a36/) 提供的一些宝贵的建议。
