@@ -8,6 +8,8 @@ categories: sre
     原文：https://learnk8s.io/troubleshooting-deployments
     一份排障指南流程图。
 
+[点击下载 PDF 版本]({{ site.url}}/assets/files/troubleshooting-kubernetes.pdf)。
+
 ![troubleshooting-kubernetes](/assets/img/troubleshooting-kubernetes.jpg)
 
 在 Kubernetes 中部署一个应用，需要定义 3 个组件：
