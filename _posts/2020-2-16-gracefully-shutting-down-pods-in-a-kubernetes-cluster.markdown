@@ -94,6 +94,6 @@ spec:
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-5](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-5.png)
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-6](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-6.png)
 
-在此示例中，当应用程序 Pod 在启动关闭序列后接收到流量时，第一个客户端将受到来自服务器的相应。但是，第二个客户端收到一个错误，该错误将被视为停机。
+在此示例中，当应用程序 Pod 在启动关闭序列后接收到流量时，第一个客户端将受到来自服务器的响应。但是，第二个客户端收到一个错误，该错误将被视为停机。
 
 那么为什么会这样呢？对于在关闭序列期间最终连接到服务器的客户端，您如何减少潜在的停机时间？在[本系列的下一部分]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})中，我们将更详细地介绍 Pod 驱逐生命周期，并描述如何在 `preStop` 勾子中引入延迟，以减轻来自 `Service` 的持续流量的影响。
