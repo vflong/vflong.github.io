@@ -1,11 +1,14 @@
 ---
 layout: post
-title:  "Kubernetes 集群的零停机服务器更新 "
+title:  "Kubernetes 集群的零停机服务器更新"
 date:   2020-2-16 11:02:14 +0800
 categories: sre k8s
 ---
 
     原文：https://blog.gruntwork.io/zero-downtime-server-updates-for-your-kubernetes-cluster-902009df5b33
+
+![zero-downtime-server-updates-for-your-kubernetes-cluster-1](/assets/img/zero-downtime-server-updates-for-your-kubernetes-cluster-1.png)
+> Kubernetes 集群的滚动更新
 
 在 Kubernetes 集群的生命周期中的某个时候，您将需要对基础节点执行维护。这可能包括程序包更新、内核升级或部署新的 VM 镜像。在 Kubernetes 中，被视为[“自愿中断”（Voluntary Disruption）](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#voluntary-and-involuntary-disruptions)。
 
@@ -24,7 +27,7 @@ categories: sre k8s
 
 首先，我们来看一个具体的例子。假设我们有一个两个节点的 Kubernetes 集群，该集群运行一个应用程序，其中两个 Pod 支持 Service 资源：
 
-![zero-downtime-server-updates-for-your-kubernetes-cluster-1](/assets/img/zero-downtime-server-updates-for-your-kubernetes-cluster-1.png)
+![zero-downtime-server-updates-for-your-kubernetes-cluster-2](/assets/img/zero-downtime-server-updates-for-your-kubernetes-cluster-2.png)
 > 我们的起点是两个 Nginx Pod 和在两个节点 Kubernetes 集群上运行的 Service。
 
 我们先要升级集群中两个底层工作程序节点的内核版本。我们该如何做？原生的方式是使用更新的配置启动新节点，然后在启动新节点后关闭旧节点。尽管这样可行，但是这种方法存在一些问题：
