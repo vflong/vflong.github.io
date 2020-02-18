@@ -15,7 +15,7 @@ categories: sre k8s
 
 # PodDisruptionBudgets：预算可容忍的故障数
 
-Pod 中断预算是一类 Pod 在给定时间可以容忍的中断数量的指标（故障预算）。每当计算出服务中的 Pod 中断导致 Service 将至预算以下时，操作就会暂停，直到可以维持预算为止。这意味着在等待更多 Pod 可用之前，可以暂时停止 drain 事件，以免驱逐 Pod 而超出预算。
+Pod 中断预算是一类 Pod 在给定时间可以容忍的中断数量的指标（故障预算）。每当计算出服务中的 Pod 中断导致 Service 降至预算以下时，操作就会暂停，直到可以维持预算为止。这意味着在等待更多 Pod 可用之前，可以暂时停止 drain 事件，以免驱逐 Pod 而超出预算。
 
 要配置一个 Pod 中断预算，我们需要创建一个与 Service 中的 Pod 相匹配的 PodDisruptionBudgets 资源。例如，如果我们想要创建一个 Pod 中断预算，而我们总是希望至少有一个 Nginx Pod 可用于我们的示例 Deployment，我们将应用以下配置：
 
@@ -45,14 +45,14 @@ spec:
 
 要替换 Pod，我们首先需要清空旧节点。在此示例中，让我们看看同时向 Nginx Pod 的两个节点发出 drain 命令时会发生什么。Drain 请求将在两个线程中发出（实际上，这只是两个终端选项卡），每个线程管理一个节点的 drain 序列。
 
-请注意，到目前为止，我们通过假设 drain 命令立即发出驱逐请求来简化示例。实际上，drain 操作首先涉及对节点进行污染（具有 `NoSchedule` 污染标签），以便不会再节点上调度新的 Pod。对于此示例，我们将分别查看两个阶段。
+请注意，到目前为止，我们通过假设 drain 命令立即发出驱逐请求来简化示例。实际上，drain 操作首先涉及对节点进行污染（具有 `NoSchedule` 污染标签），以便不会在节点上调度新的 Pod。对于此示例，我们将分别查看两个阶段。
 
 因此，开始时，管理 drain 序列的两个线程将污染节点，从而不会调度新的 Pod：
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-4](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-4.png)
 
 污染完成后，drain 线程将开始逐出节点上的 Pod。作为此操作的一部分，drain 线程将查询控制平面，以查看驱逐是否会导致 Service 下降到配置的 Pod 中断预算（PDB）以下。
 
-请注意，控制平面将序列化请求，一次处理一个 PDB 查询。这样，在这种情况下，控制平面将成功响应其中一个请求，而使另一个请求失败。这是应为第一个请求基于两个可用的 Pod。允许此请求会将可用的 Pod 数量减少到 1，这意味着预算得以维持。当它允许请求继续进行时，然后将其中一个 Pod 逐出，从而变得不可用。到那时，当处理第二个请求时，控制平面将拒绝它，因为允许该请求会将可用容器的数量将至 0，低于我们配置的预算。
+请注意，控制平面将序列化请求，一次处理一个 PDB 查询。这样，在这种情况下，控制平面将成功响应其中一个请求，而使另一个请求失败。这是因为第一个请求基于两个可用的 Pod。允许此请求会将可用的 Pod 数量减少到 1，这意味着预算得以维持。当它允许请求继续进行时，然后将其中一个 Pod 逐出，从而变得不可用。到那时，当处理第二个请求时，控制平面将拒绝它，因为允许该请求会将可用容器的数量降至 0，低于我们配置的预算。
 
 鉴于此，在此示例中，我们将假定节点 1 是获得成功响应的节点。在这种情况下，节点 1 的 drain 线程将继续驱逐 Pod，而节点 2 的 drain 线程将等待并稍后重试：
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-5](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-5.png)
