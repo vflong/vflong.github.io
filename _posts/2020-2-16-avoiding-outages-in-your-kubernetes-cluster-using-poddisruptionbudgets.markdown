@@ -68,7 +68,7 @@ spec:
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-9](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-9.png)
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-10](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-10.png)
 
-这样，我们就成功地将两个 Pod 都迁移到了新节点上，而没有遇到没有 Pod 可用为应用程序提供服务的情况。而且，我们不需要在两个线程之间有任何协调逻辑，因为 Kubernetes 会根据我们提供的配置为我们处理所有工作！
+这样，我们就成功地将两个 Pod 都迁移到了新节点上，而且没有遇到没有 Pod 可用于为应用程序提供服务的情况。而且，我们不需要在两个线程之间有任何协调逻辑，因为 Kubernetes 会根据我们提供的配置为我们处理所有工作！
 
 # 总结
 
