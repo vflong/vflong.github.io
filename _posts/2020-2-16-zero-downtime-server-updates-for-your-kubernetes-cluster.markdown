@@ -15,7 +15,7 @@ categories: sre k8s
 这是一个分为 4 部分的博客系列的一部分：
 
 1. 本文
-1. [平滑地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
+1. [优雅地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
 1. [延迟关闭以等待 Pod 删除传播]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})
 1. [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
 
@@ -35,22 +35,22 @@ categories: sre k8s
 * 当关闭旧节点时，您将会同时将在旧节点上运行的 Pod 下线。如果 Pod 需要清理以正常关闭该怎么办？底层 VM 技术可能不会等待清理过程。
 * 如果您同时关闭所有节点怎么办？将 Pod 重新启动到新节点时，您可能会短暂中断。
 
-我们想要的是一种从旧节点上平滑迁移 Pod 的方法，以确保在对节点进行更改时，没有任何工作负载运行。或者，如实例中所示，如果要完全替换集群（例如替换 VM 镜像），我们希望将工作负载从旧节点迁移到新节点。在这两种情况下，我们都希望避免将新 Pod  调度到旧节点，并且将所有正在运行的 Pod 从其上逐出。我们可以使用 [kubectl drain](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/) 命令实现它。
+我们想要的是一种从旧节点上优雅迁移 Pod 的方法，以确保在对节点进行更改时，没有任何工作负载运行。或者，如实例中所示，如果要完全替换集群（例如替换 VM 镜像），我们希望将工作负载从旧节点迁移到新节点。在这两种情况下，我们都希望避免将新 Pod  调度到旧节点，并且将所有正在运行的 Pod 从其上逐出。我们可以使用 [kubectl drain](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/) 命令实现它。
 
 # 重新调度节点上的 Pod
 
 Drain 操作实现了将所有 Pod 重新调度到其他节点的目的。在 drain 操作期间，该节点被标记为不可调度（`NoSchedule` 污点）。这样可以防止新的 Pod 被调度到该节点。之后，drain 操作开始从节点驱逐 Pod，通过将 `TERM` 信号发送到 Pod 的底层容器来关闭当前在该节点上运行的容器。
 
-尽管 `kubectl drain` 可以平滑处理 Pod 驱逐，但仍存在两个因素可能会在 drain 操作过程中导致服务中断：
+尽管 `kubectl drain` 可以优雅处理 Pod 驱逐，但仍存在两个因素可能会在 drain 操作过程中导致服务中断：
 
-* 您的应用程序服务需要能够平滑处理 TERM 信号。驱逐 Pod 时，Kubernetes 将 `TERM` 信号发送容器，然后在发出信号后将容器强制关闭之前等待可配置时间，以使用容器关闭。但是，如果您的容器无法正常处理信号，则在工作期间（例如提交数据库事务），您仍然可以不干净地关闭 Pod。
+* 您的应用程序服务需要能够优雅处理 TERM 信号。驱逐 Pod 时，Kubernetes 将 `TERM` 信号发送容器，然后在发出信号后将容器强制关闭之前等待可配置时间，以使用容器关闭。但是，如果您的容器无法正常处理信号，则在工作期间（例如提交数据库事务），您仍然可以不干净地关闭 Pod。
 * 您将失去为应用程序提供服务的所有 Pod。在新节点上启动新容器时，您的服务可能会停机，或者，如果未使用控制器部署 Pod，则它们可能永远无法重启。
 
 # 避免宕机
 
 为了最大程度地减少因 drain 节点等自愿性中断而导致的停机时间，Kubernetes 提供以下中断处理功能：
 
-* [平滑终止](https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods)
+* [优雅终止](https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods)
 * [生命周期勾子](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
 * [PodDisruptionBudgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work)
 
@@ -97,7 +97,7 @@ spec:
 
 我们将在本系列的整个过程中逐步增加它，以构建最终配置，以实现 Kubernetes 提供的所有功能，以最大程度地减少维护操作期间的停机时间。这是我们的路线图：
 
-1. [平滑地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
+1. [优雅地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
 1. [延迟关闭以等待 Pod 删除传播]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})
 1. [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
 

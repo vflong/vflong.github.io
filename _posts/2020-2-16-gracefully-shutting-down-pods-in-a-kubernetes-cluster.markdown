@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "平滑关闭 Kubernetes 集群中的 Pod"
+title:  "优雅关闭 Kubernetes 集群中的 Pod"
 date:   2020-2-16 16:31:18 +0800
 categories: sre k8s
 ---
@@ -8,9 +8,9 @@ categories: sre k8s
     原文：https://blog.gruntwork.io/gracefully-shutting-down-pods-in-a-kubernetes-cluster-328aecec90d
 
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-1](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-1.png)
-> 平滑停止 Kubernetes 中的容器
+> 优雅停止 Kubernetes 中的容器
 
-这是实现 Kubernetes 集群零停机时间更新[旅程]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})的第二部分。在[本系列的第一部分]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})中，我们提出了原生的 drain 集群中节点的问题和挑战。在本文中，我们将介绍如何解决这些问题中的一个：平滑关闭 Pod。
+这是实现 Kubernetes 集群零停机时间更新[旅程]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})的第二部分。在[本系列的第一部分]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})中，我们提出了原生的 drain 集群中节点的问题和挑战。在本文中，我们将介绍如何解决这些问题中的一个：优雅关闭 Pod。
 
 # Pod 驱逐生命周期
 
@@ -23,7 +23,7 @@ categories: sre k8s
 
 基于此流程，您可以利用应用程序容器中的 `preStop` 勾子和信号处理来正常关闭应用程序，以便在最终终止应用程序之前对其进行“清理”。例如，如果您有一个工作进程从队列中流式传输任务，则可以让您的应用程序捕获 `TERM` 信号，以指示该应用程序应停止接受新工作，并在所有当前工作完成后停止运行。或者，如果您运行的应用程序无法修改以捕获 `TERM`信号（例如第三方应用程序），则可以使用 `preStop` 勾子来实现该服务提供的自定义 API，以便正常关闭应用。
 
-在我们的示例中，Nginx 默认情况下不会平滑地处理 `TERM` 信号，从而导致现有的服务请求失败。因此我们将改为依靠 preStop 勾子正常停止 Nginx。我们将修改资源清单，在容器 spec 中添加 `lifecycle` 指令。`lifecycle` 指令如下所示：
+在我们的示例中，Nginx 默认情况下不会优雅地处理 `TERM` 信号，从而导致现有的服务请求失败。因此我们将改为依靠 preStop 勾子正常停止 Nginx。我们将修改资源清单，在容器 spec 中添加 `lifecycle` 指令。`lifecycle` 指令如下所示：
 
 ```yaml
 lifecycle:
@@ -73,7 +73,7 @@ spec:
 
 # 关机后的持续流量
 
-平滑关闭 Pod 可以确保 Nginx 在关闭之前以服务现有流量的方式停止。然而，您可能会发现，尽管有最佳意图，但 Nginx 容器在关闭后仍会继续接收流量，从而导致服务停机。
+优雅关闭 Pod 可以确保 Nginx 在关闭之前以服务现有流量的方式停止。然而，您可能会发现，尽管有最佳意图，但 Nginx 容器在关闭后仍会继续接收流量，从而导致服务停机。
 
 要了解这可能会带来什么问题，让我们通过实例 deployment 逐步介绍一个示例。对于此示例，我们将假定节点已从客户端接收流量。这将在应用程序中产生一个工作线程来处理请求。我们将在 Pod 容器中用圆圈表示该线程：
 
