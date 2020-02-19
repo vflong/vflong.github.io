@@ -73,7 +73,7 @@ spec:
 
 # 关机后的持续流量
 
-优雅关闭 Pod 可以确保 Nginx 在关闭之前以服务现有流量的方式停止。然而，您可能会发现，尽管有最佳意图，但 Nginx 容器在关闭后仍会继续接收流量，从而导致服务停机。
+优雅关闭 Pod 可以确保 Nginx 在关闭之前会将现有流量处理完成。然而，您可能会发现，尽管理想是美好的，但 Nginx 容器在关闭后仍会继续接收流量，从而产生服务停机时间。
 
 要了解这可能会带来什么问题，让我们通过实例 deployment 逐步介绍一个示例。对于此示例，我们将假定节点已从客户端接收流量。这将在应用程序中产生一个工作线程来处理请求。我们将在 Pod 容器中用圆圈表示该线程：
 
@@ -94,6 +94,6 @@ spec:
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-5](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-5.png)
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-6](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-6.png)
 
-在此示例中，当应用程序 Pod 在启动关闭序列后接收到流量时，第一个客户端将受到来自服务器的响应。但是，第二个客户端收到一个错误，该错误将被视为停机。
+在此示例中，当应用程序 Pod 在启动关闭序列后接收到流量时，第一个客户端将受到来自服务器的响应。但是，第二个客户端会收到一个错误，该错误将被视为停机。
 
 那么为什么会这样呢？对于在关闭序列期间最终连接到服务器的客户端，您如何减少潜在的停机时间？在[本系列的下一部分]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})中，我们将更详细地介绍 Pod 驱逐生命周期，并描述如何在 `preStop` 勾子中引入延迟，以减轻来自 `Service` 的持续流量的影响。

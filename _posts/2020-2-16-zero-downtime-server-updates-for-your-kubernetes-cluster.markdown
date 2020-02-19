@@ -23,19 +23,19 @@ categories: sre k8s
 
 # 说明问题
 
-我们将从原生的方法开始，找出该方法的挑战和潜在风险，并逐步构建解决我们在整个系列中确定的每个问题。我们将完成一个配置，该配置利用生命周期勾子、就绪探针以及 Pod 中断预算来实现零停机时间部署。
+我们将从原生的方法开始，找出该方法的挑战和潜在风险，并逐步构建解决我们在整个系列中发现的每个问题。我们将完成一个配置，该配置利用生命周期勾子、就绪探针以及 Pod 中断预算来实现零停机时间部署。
 
 首先，我们来看一个具体的例子。假设我们有一个两个节点的 Kubernetes 集群，该集群运行一个应用程序，其中两个 Pod 支持 Service 资源：
 
 ![zero-downtime-server-updates-for-your-kubernetes-cluster-2](/assets/img/zero-downtime-server-updates-for-your-kubernetes-cluster-2.png)
 > 我们的起点是两个 Nginx Pod 和在两个节点 Kubernetes 集群上运行的 Service。
 
-我们先要升级集群中两个底层工作程序节点的内核版本。我们该如何做？原生的方式是使用更新的配置启动新节点，然后在启动新节点后关闭旧节点。尽管这样可行，但是这种方法存在一些问题：
+我们要先升级集群中两个底层工作程序节点的内核版本。我们该如何做？原生的方式是使用更新的配置启动新节点，然后在启动新节点后关闭旧节点。尽管这样可行，但是这种方法存在一些问题：
 
 * 当关闭旧节点时，您将会同时将在旧节点上运行的 Pod 下线。如果 Pod 需要清理以正常关闭该怎么办？底层 VM 技术可能不会等待清理过程。
 * 如果您同时关闭所有节点怎么办？将 Pod 重新启动到新节点时，您可能会短暂中断。
 
-我们想要的是一种从旧节点上优雅迁移 Pod 的方法，以确保在对节点进行更改时，没有任何工作负载运行。或者，如实例中所示，如果要完全替换集群（例如替换 VM 镜像），我们希望将工作负载从旧节点迁移到新节点。在这两种情况下，我们都希望避免将新 Pod  调度到旧节点，并且将所有正在运行的 Pod 从其上逐出。我们可以使用 [kubectl drain](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/) 命令实现它。
+我们想要的是一种从旧节点上优雅迁移 Pod 的方法，以确保在对节点进行更改时，没有任何工作负载运行。或者，如实例中所示，如果要完全替换集群（例如替换 VM 镜像），我们希望将工作负载从旧节点迁移到新节点。在这两种情况下，我们都希望避免将新 Pod 调度到旧节点，并且将所有正在运行的 Pod 从其上逐出。我们可以使用 [kubectl drain](https://kubernetes.io/docs/tasks/administer-cluster/safely-drain-node/) 命令实现它。
 
 # 重新调度节点上的 Pod
 
@@ -97,8 +97,8 @@ spec:
 
 我们将在本系列的整个过程中逐步增加它，以构建最终配置，以实现 Kubernetes 提供的所有功能，以最大程度地减少维护操作期间的停机时间。这是我们的路线图：
 
-1. [优雅地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
-1. [延迟关闭以等待 Pod 删除传播]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})
-1. [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
+* [优雅地关闭 Pod]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})
+* [延迟关闭以等待 Pod 删除传播]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})
+* [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
 
-继续阅读[下一篇文章]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})，了解如何利用生命周期勾子来正常关闭 Pod。
+继续阅读[下一篇文章]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})，了解如何利用生命周期勾子来优雅关闭 Pod。
