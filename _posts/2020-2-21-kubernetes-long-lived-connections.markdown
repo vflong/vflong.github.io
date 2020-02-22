@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "负载均衡和伸缩 Kubernetes 中的长链接"
+title:  "Kubernetes 中的长连接伸缩和负载均衡"
 date:   2020-2-21 18:20:34 +0800
 categories: sre k8s
 ---
