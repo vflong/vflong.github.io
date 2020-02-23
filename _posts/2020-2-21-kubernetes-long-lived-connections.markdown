@@ -93,7 +93,7 @@ Service IP 地址仅用作占位符 —— 这就是为什么没有进程监听 
 1. 假设存在一个具有 3 个节点的集群。每个节点上都部署了一个 Pod。
 ![kubernetes-long-lived-connections-12](/assets/img/kubernetes-long-lived-connections-12.svg)
 
-1. 米色的 Pod 是 Service 的一部分。Service 不存在，因此改图的组件显示灰色。
+1. 米色的 Pod 是 Service 的一部分。Service 不存在，因此该图的组件显示灰色。
 ![kubernetes-long-lived-connections-13](/assets/img/kubernetes-long-lived-connections-13.svg)
 
 1. 红色的 Pod 想要向 Service 发起请求，并最终到达其中一个米色的 Pod。
@@ -277,7 +277,7 @@ for (var [index, endpoint] of endpoints) {
 // Make queries to the clustered MySQL database
 ```
 
-可以想象，其他几种协议也工作与 TCP 长连接之上。例如：
+可以想象，其他几种协议也工作于 TCP 长连接之上。例如：
 
 * WebSockets 和安全的 WebSockets
 * HTTP/2
@@ -329,7 +329,7 @@ ClusterIP Service 是具有一些附加功能的无头 Service：
 
 因此，您可以一起忽略 kube-proxy，而始终使用无头 Service 收集的端点列表来平衡客户端的请求。
 
-但是您能想象将逻辑添加到集群中部署的所有应用程序吗？
+*但是您能想象将逻辑添加到集群中部署的所有应用程序吗？*
 
 如果您有一个现有的应用程序群，这听起来像是不可能完成的任务。
 
@@ -380,7 +380,7 @@ ClusterIP Service 是具有一些附加功能的无头 Service：
 
 ![kubernetes-long-lived-connections-31](/assets/img/kubernetes-long-lived-connections-31.svg)
 
-连接可能分布不均（也许最终有 4 个连接到同一台服务器），但是总体而言，很有可能同事利用了这两个服务器。
+连接可能分布不均（也许最终有 4 个连接到同一台服务器），但是总体而言，很有可能同时利用了这两个服务器。
 
 更有问题的相反的情况。
 
@@ -412,4 +412,4 @@ Kubernetes 不提供任何内置机制来平衡 TCP 长连接的负载。
 
 # 备注
 
-原文：https://learnk8s.io/kubernetes-long-lived-connections
+* 原文：https://learnk8s.io/kubernetes-long-lived-connections
