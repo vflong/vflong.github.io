@@ -41,17 +41,96 @@ kubectl create -f your-new-policy.yaml
 
 ## 启用它们！
 
+首先，请确保已启用 Kubernetes Pod 安全策略。这似乎不是最佳实践，但由于某些 Kubernetes 发行版默认情况下不启用 Pod 安全策略，因此请务必确保这样做。
+
+某些 Kubernetes 发行版根本不支持 Pod 安全策略。在这种情况下，您不妨考略切换到其他发行版。在其他情况下，系统会支持 Pod 安全策略，但在 Kubernetes 启动时默认不会启用该策略。在您需要的情况下，请查看供应商文档以确定在 Kubernetes 启动时如何启用 Pod 安全策略。通常，您可以使用命令行参数来执行此操作。
+
 ## 禁用特权容器
+
+在 Kubernetes Pod 中，容器可以选择以“特权（privileged）”模式运行，这意味着容器内的进程几乎可以不受限制地访问主机系统上的资源。尽管在某些情况下需要这种级别的访问，但通常来说，让您的容器执行此操作会带来安全风险。
+
+通过在 Kubernetes Pod 安全策略中包含以下内容，可以轻松阻止特权容器运行：
+
+```yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: prevent-privileged-containers
+spec:
+  privileged: false
+```
 
 ## 只读文件系统
 
+Kubernetes 另一种安全最佳实践是要求容器与只读文件系统一起运行。这对于实施不可变基础设施策略非常有用，因为更新文件系统不可变的容器必须要更新容器。这样可以减轻恶意进程在容器内部存储或操作数据的风险。
+
+您可以使用以下 Kubernetes Pod 安全配置来强制执行只读文件系统策略：
+
+```yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: read-only-fs
+spec:
+ readOnlyRootFilesystem: true
+```
+
+可以肯定的是，只读文件系统并非在所有情况下都可行，但如果您没有充分的里有允许对容器的内部数据进行写访问，请考虑使用只读文件系统。
+
 ## 防止特权升级
+
+对于大多数管理员来说，*特权升级*是个坏词。在极少数情况下，您希望允许某个应用程序或进程获取比首次启动时更多的权限。
+
+因此，您可能会认为 Kubernetes 默认情况下会阻止特权升级，但是您错了。为了禁止您的集群上的特权升级，您必须使用 Kubernetes Pod 安全策略，如下所示：
+
+```yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: no-privilege-escalation
+spec:
+ allowPrivilegeEscalation: false
+```
 
 ## 防止容器以 root 身份运行
 
+以 root 用户身份运行程序是另一种使大多数管理员不寒而栗的做法。通常，没有充分的理由需要以 root 身份运行程序。这几乎与键入 `chmod -R 777` 并按 `Enter` 一样。
+
+幸运的是，Kubernetes Pod 安全策略提供了一种防止容器以 root 身份运行的简单方法：
+
+```yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: no-privilege-escalation
+spec:
+ MustRunAsNonRoot: true
+```
+
 ## 将策略合并在一起
 
+我们上面查看的 Kubernetes Pod 安全策略是作为单个文件编写的。您可以根据需要以这种方式配置集群，但是生产部署中，将所有设置组合到一个文件中更有意义。这样，您只有一个文件可以写入和激活。
+
+指定多个安全指令的文件如下所示：
+
+```yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: example
+spec:
+  privileged: false
+spec:
+ readOnlyRootFilesystem: true
+spec:
+ allowPrivilegeEscalation: false
+spec:
+ MustRunAsNonRoot: true
+```
+
 # 总结
+
+如我们所见，Kubernetes Pod 安全策略提供了一种方便的设置方法，可以自动在整个集群中实施强大的安全设置。尽管此主题可能不会在您与同事讨论的令人振奋的事情上排名很高，但是您不应忽略 Pod 安全策略作为确保 Kubernetes 和其中运行的容器安全的一种方式的重要型。
 
 # 备注
 
