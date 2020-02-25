@@ -11,7 +11,7 @@ categories: sre k8s
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-1](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-1.png)
 > 使用 Kubernetes 中的中断预算来阻塞 Pod 驱逐
 
-这是实现 Kubernetes 集群零停机时间更新[旅程]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})的第 4 部分。在前两篇文章（[第二部分]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})和[第三部分]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})）中，我们重点介绍了如何优雅关闭集群中存在的 Pod。我们介绍了如何使用 `preStop` 勾子优雅关闭 Pod，以及为何在序列中增加延迟以等待删除事件在集群中传播很重要。这可以处理一个 Pod 的终止，但不能阻止我们关闭太多 Pod 导致我们的服务无法正常运行。在本文中，我们将使用 [PodDisruptionBudgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work)（或者简称为 PDB）来减轻这种风险。
+这是实现 Kubernetes 集群零停机时间更新[旅程]({% post_url 2020-2-16-zero-downtime-server-updates-for-your-kubernetes-cluster %})的第 4 部分。在前两篇文章（[第二部分]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})和[第三部分]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})）中，我们重点介绍了如何优雅关闭集群中存在的 Pod。我们介绍了如何使用 `preStop` 钩子优雅关闭 Pod，以及为何在序列中增加延迟以等待删除事件在集群中传播很重要。这可以处理一个 Pod 的终止，但不能阻止我们关闭太多 Pod 导致我们的服务无法正常运行。在本文中，我们将使用 [PodDisruptionBudgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work)（或者简称为 PDB）来减轻这种风险。
 
 # PodDisruptionBudgets：预算可容忍的故障数
 
@@ -35,7 +35,7 @@ spec:
 
 # 示例
 
-为了说明它是如何工作的，让我们回到我们的示例。为了简单起见，在此示例中，我们将忽略所有的 `preStop` 勾子、就绪探针和服务请求。我们还将假设我们要对集群节点进行一对一替换。这意味着我们将通过使节点数量加倍来扩展集群，并使新节点运行新镜像。
+为了说明它是如何工作的，让我们回到我们的示例。为了简单起见，在此示例中，我们将忽略所有的 `preStop` 钩子、就绪探针和服务请求。我们还将假设我们要对集群节点进行一对一替换。这意味着我们将通过使节点数量加倍来扩展集群，并使新节点运行新镜像。
 
 因此，我们从两个节点的初始集群开始：
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-2](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-2.png)
@@ -74,7 +74,7 @@ spec:
 
 最后将所有这些联系在一起，在本博客系列文章中，我们介绍了：
 
-* 如何使用生命周期勾子来实现优雅关闭我们的应用程序的功能，以使它们不会突然中止。
+* 如何使用生命周期钩子来实现优雅关闭我们的应用程序的功能，以使它们不会突然中止。
 * 如何从系统中移除 Pod，以及为什么必须在关闭序列中引入延迟。
 * 如何指定 Pod 中断预算，以确保我们始终有一定数量的 Pod 可用，以便在中断情况下为功能正常的应用程序持续提供服务。
 

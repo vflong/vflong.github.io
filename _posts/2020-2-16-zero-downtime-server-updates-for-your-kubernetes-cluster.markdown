@@ -23,7 +23,7 @@ categories: sre k8s
 
 # 说明问题
 
-我们将从原生的方法开始，找出该方法的挑战和潜在风险，并逐步构建解决我们在整个系列中发现的每个问题。我们将完成一个配置，该配置利用生命周期勾子、就绪探针以及 Pod 中断预算来实现零停机时间部署。
+我们将从原生的方法开始，找出该方法的挑战和潜在风险，并逐步构建解决我们在整个系列中发现的每个问题。我们将完成一个配置，该配置利用生命周期钩子、就绪探针以及 Pod 中断预算来实现零停机时间部署。
 
 首先，我们来看一个具体的例子。假设我们有一个两个节点的 Kubernetes 集群，该集群运行一个应用程序，其中两个 Pod 支持 Service 资源：
 
@@ -51,7 +51,7 @@ Drain 操作实现了将所有 Pod 重新调度到其他节点的目的。在 dr
 为了最大程度地减少因 drain 节点等自愿性中断而导致的停机时间，Kubernetes 提供以下中断处理功能：
 
 * [优雅终止](https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods)
-* [生命周期勾子](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
+* [生命周期钩子](https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/)
 * [PodDisruptionBudgets](https://kubernetes.io/docs/concepts/workloads/pods/disruptions/#how-disruption-budgets-work)
 
 在本系列的其余部分中，我们将使用 Kubernetes 的这些功能来减轻驱逐时间对服务的干扰。为了使后续操作更容易，我们将在上面的示例中使用以下资源配置：
@@ -101,4 +101,4 @@ spec:
 * [延迟关闭以等待 Pod 删除传播]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})
 * [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
 
-继续阅读[下一篇文章]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})，了解如何利用生命周期勾子来优雅关闭 Pod。
+继续阅读[下一篇文章]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})，了解如何利用生命周期钩子来优雅关闭 Pod。
