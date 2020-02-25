@@ -19,7 +19,7 @@ categories: sre k8s
 
 ## Kubernetes Pod 安全策略是集群级别资源
 
-需要澄清的一点是：不要让 *Pod 安全策略* 一词使您感到困惑。尽管这个名称听起来像Pod安全策略定义了特定Pod的安全设置，但实际上相反。
+需要澄清的一点是：不要让 *Pod 安全策略* 一词使您感到困惑。尽管这个名称听起来像 Pod 安全策略定义了特定 Pod 的安全设置，但实际上相反。
 
 Kubernetes Pod 安全策略是集群级别的资源，这意味着它们定义了适用于整个群集而不是单个 Pod 的安全策略。
 
@@ -58,7 +58,20 @@ metadata:
   name: prevent-privileged-containers
 spec:
   privileged: false
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
 ```
+
+> 译者注：原文缺少了一些必填字段，导致无法直接使用此策略，译文已添加。
 
 ## 只读文件系统
 
@@ -72,8 +85,21 @@ kind: PodSecurityPolicy
 metadata:
   name: read-only-fs
 spec:
- readOnlyRootFilesystem: true
+  readOnlyRootFilesystem: true
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
 ```
+
+> 译者注：原文缺少了一些必填字段，导致无法直接使用此策略，译文已添加。
 
 可以肯定的是，只读文件系统并非在所有情况下都可行，但如果您没有充分的里有允许对容器的内部数据进行写访问，请考虑使用只读文件系统。
 
@@ -89,8 +115,21 @@ kind: PodSecurityPolicy
 metadata:
   name: no-privilege-escalation
 spec:
- allowPrivilegeEscalation: false
+  allowPrivilegeEscalation: false
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: RunAsAny
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
 ```
+
+> 译者注：原文缺少了一些必填字段，导致无法直接使用此策略，译文已添加。
 
 ## 防止容器以 root 身份运行
 
@@ -102,10 +141,22 @@ spec:
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
-  name: no-privilege-escalation
+  name: must-run-as-nonroot
 spec:
- MustRunAsNonRoot: true
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: MustRunAsNonRoot
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
 ```
+
+> 译者注：原文缺少了一些必填字段，导致无法直接使用此策略，译文已添加。
 
 ## 将策略合并在一起
 
@@ -120,18 +171,87 @@ metadata:
   name: example
 spec:
   privileged: false
-spec:
- readOnlyRootFilesystem: true
-spec:
- allowPrivilegeEscalation: false
-spec:
- MustRunAsNonRoot: true
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  # The rest fills in some required fields.
+  seLinux:
+    rule: RunAsAny
+  supplementalGroups:
+    rule: RunAsAny
+  runAsUser:
+    rule: MustRunAsNonRoot
+  fsGroup:
+    rule: RunAsAny
+  volumes:
+  - '*'
 ```
+
+> 译者注：原文缺少了一些必填字段，导致无法直接使用此策略，译文已添加。
 
 # 总结
 
 如我们所见，Kubernetes Pod 安全策略提供了一种方便的设置方法，可以自动在整个集群中实施强大的安全设置。尽管此主题可能不会在您与同事讨论的令人振奋的事情上排名很高，但是您不应忽略 Pod 安全策略作为确保 Kubernetes 和其中运行的容器安全的一种方式的重要型。
 
+# 补充操作命令记录
+
+```bash
+# 禁用特权容器
+$ k create -f prevent-privileged-containers.yaml
+podsecuritypolicy.policy/prevent-privileged-containers created
+
+$ k get psp prevent-privileged-containers       
+NAME                            PRIV    CAPS   SELINUX    RUNASUSER   FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+prevent-privileged-containers   false          RunAsAny   RunAsAny    RunAsAny   RunAsAny   false            *
+
+# 只读文件系统
+$ k create -f read-only-fs.yaml
+podsecuritypolicy.policy/read-only-fs created
+
+# root @ feilong-Lenovo in ~ [22:09:27] 
+$ k get psp read-only-fs                  
+NAME           PRIV    CAPS   SELINUX    RUNASUSER   FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+read-only-fs   false          RunAsAny   RunAsAny    RunAsAny   RunAsAny   true             *
+
+# 防止特权升级
+$ k create -f no-privilege-escalation.yaml 
+podsecuritypolicy.policy/no-privilege-escalation created
+
+$ k get psp no-privilege-escalation       
+NAME                      PRIV    CAPS   SELINUX    RUNASUSER   FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+no-privilege-escalation   false          RunAsAny   RunAsAny    RunAsAny   RunAsAny   false            *
+
+# 防止以 root 身份运行
+$ k create -f must-run-as-nonroot.yaml    
+podsecuritypolicy.policy/must-run-as-nonroot created
+
+$ k get psp must-run-as-nonroot                                    
+NAME                  PRIV    CAPS   SELINUX    RUNASUSER          FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+must-run-as-nonroot   false          RunAsAny   MustRunAsNonRoot   RunAsAny   RunAsAny   false            *
+
+# 所有策略汇总
+$ k create -f example.yaml            
+podsecuritypolicy.policy/example created
+
+$ k get psp example            
+NAME      PRIV    CAPS   SELINUX    RUNASUSER          FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+example   false          RunAsAny   MustRunAsNonRoot   RunAsAny   RunAsAny   true             *
+
+# 查看所有策略
+$ k get psp                             
+NAME                            PRIV    CAPS   SELINUX    RUNASUSER          FSGROUP    SUPGROUP   READONLYROOTFS   VOLUMES
+prevent-privileged-containers   false          RunAsAny   RunAsAny           RunAsAny   RunAsAny   false            *
+read-only-fs                    false          RunAsAny   RunAsAny           RunAsAny   RunAsAny   true             *
+no-privilege-escalation         false          RunAsAny   RunAsAny           RunAsAny   RunAsAny   false            *
+must-run-as-nonroot             false          RunAsAny   MustRunAsNonRoot   RunAsAny   RunAsAny   false            *
+example                         false          RunAsAny   MustRunAsNonRoot   RunAsAny   RunAsAny   true             *
+
+```
+
+
+
+
 # 备注
 
 * 原文：[https://resources.whitesourcesoftware.com/blog-whitesource/kubernetes-pod-security-policy](https://resources.whitesourcesoftware.com/blog-whitesource/kubernetes-pod-security-policy)
+* 参考：[https://kubernetes.io/zh/docs/concepts/policy/pod-security-policy/](https://kubernetes.io/zh/docs/concepts/policy/pod-security-policy/)
+
