@@ -195,6 +195,11 @@ spec:
 # 补充操作命令记录
 
 ```bash
+# 测试环境
+$ k version      
+Client Version: version.Info{Major:"1", Minor:"16", GitVersion:"v1.16.3-k3s.2", GitCommit:"e7e6a3c4e9a7d80b87793612730d10a863a25980", GitTreeState:"clean", BuildDate:"2019-11-18T18:31:23Z", GoVersion:"go1.13.4", Compiler:"gc", Platform:"linux/amd64"}
+Server Version: version.Info{Major:"1", Minor:"16", GitVersion:"v1.16.3-k3s.2", GitCommit:"e7e6a3c4e9a7d80b87793612730d10a863a25980", GitTreeState:"clean", BuildDate:"2019-11-18T18:31:23Z", GoVersion:"go1.13.4", Compiler:"gc", Platform:"linux/amd64"}
+
 # 禁用特权容器
 $ k create -f prevent-privileged-containers.yaml
 podsecuritypolicy.policy/prevent-privileged-containers created
