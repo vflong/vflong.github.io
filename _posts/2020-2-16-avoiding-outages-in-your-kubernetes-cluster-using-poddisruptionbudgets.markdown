@@ -4,10 +4,6 @@ title:  "使用 PodDisruptionBudgets 避免 Kubernetes 集群中断"
 date:   2020-2-16 22:56:38 +0800
 categories: sre k8s
 ---
-
-
-    原文：https://blog.gruntwork.io/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-ef6a4baa5085
-
 ![avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-1](/assets/img/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-1.png)
 > 使用 Kubernetes 中的中断预算来阻塞 Pod 驱逐
 
@@ -81,3 +77,7 @@ spec:
 当所有这些功能一起使用时，我们可以实现零实例更新停机时间的目标！
 
 但是不要只听我的话！继续进行此配置。您甚至可以利用 terratest 编写自动化测试，这可以利用 [k8s 模块](https://godoc.org/github.com/gruntwork-io/terratest/modules/k8s)中的功能以及[连续检查 endpoint 的能力](https://godoc.org/github.com/gruntwork-io/terratest/modules/http-helper#ContinuouslyCheckUrl)。毕竟，[我们从编写 30 万行基础结构代码中学到的重要经验](https://blog.gruntwork.io/5-lessons-learned-from-writing-over-300-000-lines-of-infrastructure-code-36ba7fadeac1)之一就是，没有自动化测试的基础结构代码是不完整的。
+
+# 备注
+
+* 原文：[https://blog.gruntwork.io/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-ef6a4baa5085](https://blog.gruntwork.io/avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets-ef6a4baa5085)

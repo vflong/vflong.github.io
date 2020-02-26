@@ -4,9 +4,6 @@ title:  "优雅关闭 Kubernetes 集群中的 Pod"
 date:   2020-2-16 16:31:18 +0800
 categories: sre k8s
 ---
-
-    原文：https://blog.gruntwork.io/gracefully-shutting-down-pods-in-a-kubernetes-cluster-328aecec90d
-
 ![gracefully-shutting-down-pods-in-a-kubernetes-cluster-1](/assets/img/gracefully-shutting-down-pods-in-a-kubernetes-cluster-1.png)
 > 优雅停止 Kubernetes 中的容器
 
@@ -97,3 +94,7 @@ spec:
 在此示例中，当应用程序 Pod 在启动关闭序列后接收到流量时，第一个客户端将受到来自服务器的响应。但是，第二个客户端会收到一个错误，该错误将被视为停机。
 
 那么为什么会这样呢？对于在关闭序列期间最终连接到服务器的客户端，您如何减少潜在的停机时间？在[本系列的下一部分]({% post_url 2020-2-16-delaying-shutdown-to-wait-for-pod-deletion-propagation %})中，我们将更详细地介绍 Pod 驱逐生命周期，并描述如何在 `preStop` 钩子中引入延迟，以减轻来自 `Service` 的持续流量的影响。
+
+# 备注
+
+* 原文：[https://blog.gruntwork.io/gracefully-shutting-down-pods-in-a-kubernetes-cluster-328aecec90d](https://blog.gruntwork.io/gracefully-shutting-down-pods-in-a-kubernetes-cluster-328aecec90d)

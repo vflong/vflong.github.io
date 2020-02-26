@@ -4,9 +4,6 @@ title:  "Kubernetes 集群的零停机服务器更新"
 date:   2020-2-16 11:02:14 +0800
 categories: sre k8s
 ---
-
-    原文：https://blog.gruntwork.io/zero-downtime-server-updates-for-your-kubernetes-cluster-902009df5b33
-
 ![zero-downtime-server-updates-for-your-kubernetes-cluster-1](/assets/img/zero-downtime-server-updates-for-your-kubernetes-cluster-1.png)
 > Kubernetes 集群的滚动更新
 
@@ -102,3 +99,7 @@ spec:
 * [使用 PodDisruptionBudge 避免中断]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})
 
 继续阅读[下一篇文章]({% post_url 2020-2-16-gracefully-shutting-down-pods-in-a-kubernetes-cluster %})，了解如何利用生命周期钩子来优雅关闭 Pod。
+
+# 备注
+
+* 原文：[https://blog.gruntwork.io/zero-downtime-server-updates-for-your-kubernetes-cluster-902009df5b33](https://blog.gruntwork.io/zero-downtime-server-updates-for-your-kubernetes-cluster-902009df5b33)

@@ -4,9 +4,6 @@ title:  "延迟关闭以等待 Pod 删除传播"
 date:   2020-2-16 21:20:18 +0800
 categories: sre k8s
 ---
-
-    原文：https://blog.gruntwork.io/delaying-shutdown-to-wait-for-pod-deletion-propagation-445f779a8304
-
 ![delaying-shutdown-to-wait-for-pod-deletion-propagation-1](/assets/img/delaying-shutdown-to-wait-for-pod-deletion-propagation-1.png)
 > 延迟关闭 Kubernetes 中的 Pod
 
@@ -105,3 +102,7 @@ spec:
 如果改为一次 drain 一个节点，那么最终可能会在其余的旧节点上启动新的 Pod。这种情况也存在风险，我们可能遇到所有的 Pod 被调度到同一个旧的节点，并且当我们 drain 该节点时，我们还是会失去所有的 Pod 副本。
 
 为了处理这种情况，Kubernetes 提供了一个称为 `PodDisruptionBudgets` 的功能，该功能指定了在任何给定的时间点可以关闭的 Pod 数量的阈值。在[本系列的下一个也是最后一部分]({% post_url 2020-2-16-avoiding-outages-in-your-kubernetes-cluster-using-poddisruptionbudgets %})，我们将介绍如何使用它来控制同时发生的 drain 事件的数量，尽管我们采用了原始的方式为所有节点发出了 drain 调用请求。
+
+# 备注
+
+* 原文：[https://blog.gruntwork.io/delaying-shutdown-to-wait-for-pod-deletion-propagation-445f779a8304](https://blog.gruntwork.io/delaying-shutdown-to-wait-for-pod-deletion-propagation-445f779a8304)
