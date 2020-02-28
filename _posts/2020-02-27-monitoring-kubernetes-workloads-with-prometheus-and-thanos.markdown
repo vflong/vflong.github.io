@@ -69,10 +69,219 @@ categories: sre k8s
 
 收集上述指标后，您将可用构建有意义的**告警**和**仪表盘**，下面将对此进行简要介绍。
 
-
 # Thanos
 
+[Thanos](https://github.com/improbable-eng/thanos) 是一个开源项目，由一组组件构建而成，开源将这些组件组合层具有**无限存储容量**的**高可用**的度量系统，并可以将其无缝添加到现有 Prometheus 部署之上。
+
+*Thanos* 利用 *Prometheus* 存储格式在任何对象存储中经济高效地存储历史指标数据，同时保持快速查询延迟。此外，它在所有 *Prometheus* 安装中提供了**全局查询视图**。
+
+*Thanos* 的主要组件有：
+
+* **Sidecar**：连接到 Prometheus 并将其暴露以通过 *Query GateWay* 进行实时查询和（或）将其数据上传到云存储以供长时间使用。
+* **Query Gateway**：实现 *Prometheus* 的 API，以聚合来自底层组件（例如 *Sidecar* 或 *Store Gateway*）的数据
+* **Store Gateway**：暴露云存储的内容
+* **Compactor**：压缩和下采样存储在云存储中的数据
+* **Receiver**：从 *Prometheus* 的远程写入 WAL 接收数据，将其公开和（或）上传到云存储
+* **Ruler**：根据 *Thano* 中的数据评估记录和告警规则以进行展示和（或）上传
+
+在本文中，我们将重点介绍前三个组件：
+
+![monitoring-kubernetes-workloads-with-prometheus-and-thanos-2](/assets/img/monitoring-kubernetes-workloads-with-prometheus-and-thanos-2.jpeg)
+> Thanos 部署架构图
+
 # 部署 Thanos
+
+我们首先将 *Thanos Sidercar* 部署到我们的 Kubernetes 集群中，这些集群用于运行工作负载以及 *Prometheus* 和 *Grafana*。
+
+尽管有很多方法可以安装 Prometheus，但我更喜欢使用 [Prometheus-Operator](https://github.com/coreos/prometheus-operator)，它使您可以轻松地监控 *Kubernetes* 服务的定义以及 *Kubernetes* 实例的部署和管理。
+
+安装 *Prometheus-Operator* 的最简单方法是使用其 [Helm chart](https://github.com/helm/charts/tree/master/stable/prometheus-operator)，该 chart 内置了对高可用性的支持，*Thanos Sidercar* 注入和许多预配置的*告警*，用于监控集群虚拟机、*Kubernetes* 基础设施和您的应用程序。
+
+在部署 *Thanos Sidecar* 之前，我们需要有一个 *Kubernetes Secret*，其中包含有关如何连接到云存储的详细信息，对于此演示，我将使用 *Microsoft Azure*。
+
+创建一个 blob 存储账户：
+
+```bash
+az storage account create --name <storage_name> --resource-group <resource_group> --location <location> --sku Standard_LRS --encryption blob
+```
+
+然后，为指标创建一个文件夹（即容器）：
+
+```bash
+az storage container create --account-name <storage_name> --name thanos
+```
+
+获取存储密钥：
+
+```bash
+az storage account keys list -g <resource_group> -n <storage_name>
+```
+
+创建用于存储设置的文件（*thanos-storage-config.yaml*）：
+
+```yaml
+type: AZURE
+config:
+  storage_account: "<storage_name>"
+  storage_account_key: "<key>"
+  container: "thanos"
+```
+
+创建 *Kubernetes Secret*：
+
+```bash
+kubectl -n monitoring create secret generic thanos-objstore-config --from-file=thanos.yaml=thanos-storage-config.yaml
+```
+
+创建一个 *values* 文件（*prometheus-operator-values.yaml*）以覆盖默认的 *Prometheus-Operator* 设置：
+
+```yaml
+prometheus:
+  prometheusSpec:
+    replicas: 2      # work in High-Availability mode
+    retention: 12h   # we only need a few hours of retenion, since the rest is uploaded to blob
+    image:
+      tag: v2.8.0    # use a specific version of Prometheus
+    externalLabels:  # a cool way to add default labels to all metrics 
+      geo: us          
+      region: eastus
+    serviceMonitorNamespaceSelector:  # allows the operator to find target config from multiple namespaces
+      any: true
+    thanos:         # add Thanos Sidecar
+      tag: v0.3.1   # a specific version of Thanos
+      objectStorageConfig: # blob storage configuration to upload metrics 
+        key: thanos.yaml
+        name: thanos-objstore-config
+grafana:           # (optional) we don't need Grafana in all clusters
+  enabled: false
+```
+
+然后部署：
+
+```bash
+helm install --namespace monitoring --name prometheus-operator stable/prometheus-operator -f prometheus-operator-values.yaml
+```
+
+现在，您应该在集群中运行了一个**高可用**的 *Prometheus*，以及 *Thanos Sidecar*，它可以将您的指标无限期地上传到 Azure Blob 存储。
+
+为了允许 *Thanos Store Gateway* 访问那些 *Thanos Sidecar*，我们需要通过一个 *Ingress* 暴露它们，我正在使用 [Nginx Ingress Controller](https://github.com/kubernetes/ingress-nginx)，但是您可以使用任何其他支持 gRPC 的 *Ingress Controller*（[Envoy](https://www.envoyproxy.io/)可能是最好的选择）。
+
+为了确保 *Thanos Store Gateway* 和 *Thanos Sidecar* 之间的安全通信，我们将使用双向 TLS，这意味着客户端将对服务器进行身份验证，反之亦然。
+
+假设您拥有 *.pfx* 后缀的文件，则可以使用 *openssl* 提取其*私钥*、*公钥*和 *CA*：
+
+```bash
+# public key
+openssl pkcs12 -in cert.pfx -nocerts -nodes | sed -ne '/-BEGIN PRIVATE KEY-/,/-END PRIVATE KEY-/p' > cert.key
+# private key
+openssl pkcs12 -in cert.pfx -clcerts -nokeys | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > cert.cer
+# certificate authority (CA)
+openssl pkcs12 -in cert.pfx -cacerts -nokeys -chain | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > cacerts.cer
+```
+
+以此创建两个 *Kubernetes Secret*：
+
+```bash
+# a secret to be used for TLS termination
+kubectl create secret tls -n monitoring thanos-ingress-secret --key ./cert.key --cert ./cert.cer
+# a secret to be used for client authenticating using the same CA
+kubectl create secret generic -n monitoring thanos-ca-secret --from-file=ca.crt=./cacerts.cer
+```
+
+确保您有一个解析为您的 *Kubernetes* 集群的域，并创建两个子域以用于路由到每个 *Thaos SideCar*：
+
+```
+thanos-0.your.domain
+thanos-1.your.domain
+```
+
+现在，我们可以创建 *Ingress* 规则（替换 host 值）：
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prometheus
+  name: thanos-sidecar-0
+spec:
+  ports:
+    - port: 10901
+      protocol: TCP
+      targetPort: grpc
+      name: grpc
+  selector:
+    statefulset.kubernetes.io/pod-name: prometheus-prometheus-operator-prometheus-0
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prometheus
+  name: thanos-sidecar-1
+spec:
+  ports:
+    - port: 10901
+      protocol: TCP
+      targetPort: grpc
+      name: grpc
+  selector:
+    statefulset.kubernetes.io/pod-name: prometheus-prometheus-operator-prometheus-1
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+    nginx.ingress.kubernetes.io/auth-tls-secret: "monitoring/thanos-ca-secret"
+  labels:
+    app: prometheus
+  name: thanos-sidecar-0
+spec:
+  rules:
+  - host: thanos-0.your.domain
+    http:
+      paths:
+      - backend:
+          serviceName: thanos-sidecar-0
+          servicePort: grpc
+  tls:
+  - hosts:
+    - thanos-0.your.domain
+    secretName: thanos-ingress-secret
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: "on"
+    nginx.ingress.kubernetes.io/auth-tls-secret: "monitoring/thanos-ca-secret"
+  labels:
+    app: prometheus
+  name: thanos-sidecar-1
+spec:
+  rules:
+  - host: thanos-1.your.domain
+    http:
+      paths:
+      - backend:
+          serviceName: thanos-sidecar-1
+          servicePort: grpc
+  tls:
+  - hosts:
+    - thanos-1.your.domain
+    secretName: thanos-ingress-secret
+```
+
+现在，我们有了从集群外部访问 *Thanos Sidecar* 的**安全**方法！
+
+## Thanos 集群
 
 # 其他选择
 
