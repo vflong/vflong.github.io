@@ -283,10 +283,101 @@ spec:
 
 ## Thanos 集群
 
-# 其他选择
+在上方的 *Thanos* 图中，您可以看到我选择将 Thanos 部署在单独的集群中，那是因为我想要一个专用集群，可以在需要时轻松地重新创建它，并使工程师可以访问它，而无需他们访问实际的生产集群。
+
+为了部署 *Thanos* 组件，我选择使用此 [Helm chart](https://github.com/arthur-c/thanos-helm-chart)。
+
+创建一个 *thanos-values.yaml* 文件以覆盖默认 chart 设置。
+
+由于 *Thanos Store Gateway* 需要访问 Blob 存储的权限，因此我们也在该集群中重新创建了存储 secret：
+
+```bash
+kubectl -n thanos create secret generic thanos-objstore-config --from-file=thanos.yaml=thanos-storage-config.yaml
+```
+
+要部署此 chart，我们将使用与之前创建的证书相同的证书，并将其作为值注入：
+
+```bash
+helm install --name thanos --namespace thanos ./thanos -f thanos-values.yaml --set-file query.tlsClient.cert=cert.cer --set-file query.tlsClient.key=cert.key --set-file query.tlsClient.ca=cacerts.cer --set-file store.tlsServer.cert=cert.cer --set-file store.tlsServer.key=cert.key --set-file store.tlsServer.ca=cacerts.cer
+```
+
+这将同事安装 *Thanos Query Gateway* 和 *Thanos Storage Gateway*，并将它们配置为使用安全通道。
+
+## 验证
+
+为了验证一切正常，您可以使用以下命令将 *Thanos Query Gateway* HTTP 服务端口映射出来：
+
+```bash
+kubectl -n thanos port-forward svc/thanos-query-http 8080:10902
+```
+
+然后打开浏览器访问 [http://localhost:8080](http://localhost:8080)，您应该会看到 Thanos UI 界面！
+
+![monitoring-kubernetes-workloads-with-prometheus-and-thanos-3](/assets/img/monitoring-kubernetes-workloads-with-prometheus-and-thanos-3.png)
+
+## Grafana
+
+要添加仪表盘，您只需使用 Helm chart 安装 Grafana。
+
+创建具有以下内容的 *grafana-values.yaml*：
+
+```yaml
+datasources:
+ datasources.yaml:
+   apiVersion: 1
+   datasources:
+   - name: Prometheus
+     type: prometheus
+     url: http://thanos-query-http:10902
+     access: proxy
+     isDefault: true
+dashboardProviders:
+ dashboardproviders.yaml:
+   apiVersion: 1
+   providers:
+   - name: 'default'
+     orgId: 1
+     folder: ''
+     type: file
+     disableDeletion: false
+     editable: true
+     options:
+       path: /var/lib/grafana/dashboards/default
+dashboards:
+  default:
+    cluster-stats:
+      # Ref: https://grafana.com/dashboards/1621
+      gnetId: 1621
+      revision: 1
+      datasource: Prometheus
+    prometheus-stats:
+      # Ref: https://grafana.com/dashboards/2
+      gnetId: 2
+      revision: 2
+      datasource: Prometheus
+    node-exporter:
+      # Ref: https://grafana.com/dashboards/1860
+      gnetId: 1860
+      revision: 13
+      datasource: Prometheus
+```
+
+请注意，我向其中添加了 3 个默认仪表盘，您也可以添加自己的仪表盘（最简单的方法是使用 *ConfigMap*）。
+
+然后部署：
+
+```bash
+helm install --name grafana --namespace thanos stable/grafana -f grafana-values.yaml
+```
+
+再次执行端口转发操作：
+
+```bash
+kubectl -n thanos port-forward svc/grafana 8080:80
+```
+
+非常好！您已经完成了基于 Prometheus 的高可用监控解决方案的部署，改解决方案具有长期存储功能，并且可以跨多个集群进行集中查看！
 
 # 备注
 
 * 原文：[https://itnext.io/monitoring-kubernetes-workloads-with-prometheus-and-thanos-4ddb394b32c](https://itnext.io/monitoring-kubernetes-workloads-with-prometheus-and-thanos-4ddb394b32c)
-
-
