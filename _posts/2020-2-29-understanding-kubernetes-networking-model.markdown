@@ -166,10 +166,129 @@ Kubernetes *Service* 管理一组 Pod 的状态，使您可以跟踪随时间动
 
 ## 5.1 netfilter 和 iptables
 
+为了在集群内执行负载均衡，Kubernetes 依赖于 Linux 内置的网络框架 `netfilter`。Netfilter 是 Linux 提供的框架，它允许以自定义处理程序的形式实现各种与网络相关的操作。Netfilter 提供了各种功能和操作，用于数据包过滤，网络地址转换和端口转换，这些功能和操作提供了通过网络定向数据包所需的功能，以及提供禁止数据包到达计算机网络内敏感位置的功能。
 
+`iptables` 是一个用户空间程序，它提供了一个基于表的系统，用于定义使用 netfilter 框架处理和转换数据包的规则。在 Kubernetes 中，iptables 规则由 kube-proxy 控制器配置，该控制器监视 Kubernetes API 服务器的更改。当对 Service 或 Pod 的更改更新了服务的虚拟 IP 地址或 Pod 的 IP 地址时，将更新 iptables 规则以将针对 Service 的流量正确地路由到后备 Pod。iptables 规则会监视发往 Service 虚拟 IP 的流量，并在匹配时监视，从可用 Pod 的集合中选择一个随机 Pod IP 地址，并且 iptables 规则将数据包的目标 IP 地址从 Service 的虚拟 IP 更改为所选 Pod 的 IP。随着 Pod 启停，iptables 规则集将更新以反映集群状态的变化。换句话说，iptables 已在计算机上完成了负载均衡，以将定向到 Service IP 的流量传输到实际 Pod 的 IP。
 
+在返回的路径上，IP 地址来自目标 Pod。在这种情况下，iptables 再次重写 IP 表头，以用该 Service 的 IP 替换 Pod IP，以便 Pod 认为它一直在与该服务的 IP 进行通信。
 
+## 5.2 IPVS
 
+Kubernetes 的最新版本（1.11）加入了用于集群内负载均衡的第二个选项：IPVS。IPVS（IP 虚拟服务器），也建立在 netfilter 之上，并作为 Linux 内核的一部分实现传输层负载均衡。IPVS 被集成到 LVS（Linux 虚拟服务器）中，在此服务器上运行，并充当真实服务器集群之前的负载均衡器。IPVS 可以将对基于 TCP 和 UDP 的服务的请求定向到真实服务器，并使真实服务器的服务在单个 IP 地址上显示为虚拟服务。这使得 IPVS 非常适合 Kubernetes Service。
+
+在声明 Kubernetes 服务时，您可以指定是否要使用 iptables 或 IPVS 实现集群内负载均衡。IPVS 专为负载均衡而设计，并使用更有效的数据结构（哈希表），与 iptables 相比，几乎可以无限扩展。创建使用 IPVS 的 Service 负载均衡时，会发生三件事：
+
+1. 在节点上创建虚拟 IPVS 接口
+1. 将服务的 IP 地址绑定到虚拟 IPVS 接口
+1. 并为每个服务 IP 地址创建 IPVS 服务器
+
+将来，希望 IPVS 成为集群内负载均衡的默认方式。此更改仅影响集群内的负载均衡，在本指南的后续部分中，您可以使用 IPVS 安全地替换 iptables 以进行集群内的负载均衡，而不会影响后续的讨论。
+
+## 5.3 数据包的生命周期：Pod-to-Service
+
+![understanding-kubernetes-networking-model-8](/assets/img/understanding-kubernetes-networking-model-8.gif)
+> 图 8，数据包在 Pod 和 Service 之间传输
+
+在 Pod 和 Service 之间路由数据包时，旅程以与以前相同的方式开始。数据包首先通过连接到 Pod 网络命名空间（1）的 `eth0` 接口离开 Pod。然后，它通过虚拟以太网设备到达网桥（2）。在网桥上运行的 ARP 协议不了解服务，因此它通过默认路由 `eth0`（3）传送数据包。在这里，发生了一些不同的事情。在被 `eth0` 接受之前，该数据包通过 iptables 进行过滤。收到数据包之后， iptables 会使用 kube-proxy 安装在节点上的规则来响应服务或 Pod 事件，以将数据包的目标从 Service IP 重写到特定的 Pod IP（4）。现在，数据包将到达 Pod 4，而不是 Service 的虚拟 IP。iptables 充分利用了 Linux 内核的 `conntrack` 实用程序，以记住做出的 Pod 选择，以便将来的流量被路由到相同的 Pod（不包括任何扩缩容事件）。本质上，iptables 直接在节点上完成了集群内负载均衡。然后，使用我们已经检查过的 Pod-to-Pod 路由将流量流到 Pod。
+
+## 5.4 数据包的生命周期：Service-to-Pod
+
+![understanding-kubernetes-networking-model-9](/assets/img/understanding-kubernetes-networking-model-9.gif)
+> 图 9，数据包在 Service 和 Pod 之间传输
+
+接收到此数据包的 Pod 将作出响应，将源 IP 标识为自己的 IP，将目标 IP 标识为最初发送该数据包的 Pod（1）。进入节点后，数据包流经 iptables，后者使用 `conntrack` 记住先前所做的选择，并将数据包的源重写为 Service 的 IP，而不是 Pod 的 IP（2）。数据包从此处通过网桥流到与 Pod 的命名空间配对的虚拟以太网设备（3），再到我们之前看到的 Pod 的以太网设备（4）。
+
+## 5.5 使用 DNS
+
+Kubernetes 可以选择使用 DNS，以避免必须将 Service 的 Cluster IP 地址硬编码到您的应用程序中。Kubernetes DNS 作为在集群上计划的常规 Kubernetes 服务运行。它配置在每个节点上运行的 `kubelet`，以便容器使用 DNS 服务的 IP 来解析 DNS 名称。为集群中定义的每个服务（包括 DNS 服务器本身）分配一个 DNS 名称。DNS 记录根据您的需要将 DNS 名称解析为 Service 的 cluster IP 或 Pod 的 IP。SRV 记录用于指定运行 Service 的特定命名端口。
+
+DNS Pod 由 3 个单独的容器组成：
+
+* `kubedns`：监视 Kubernetes master 节点以了解 Service 和 Endpoint 的更爱，并维护内存中的查找结构以服务 DNS 请求。
+* `dnsmasq`：添加 DNS 缓存以提高性能。
+* `sidecar`：提供单个运行状态检查点，以执行 `dnsmasq` 和 `kubedns` 的运行状况检查。
+
+DNS Pod 本身作为 Kubernetes Service 暴露，具有静态 cluster IP，该 IP 在启动时会传递给每个正在运行的容器，以便每个容器都可以解析 DNS 条目。通过维护内存中 DNS 表示形式的 `kubedns` 系统解析 DNS 条目。`etcd` 是用于集群状态的后端存储系统，而 `kubedns` 使用一个库，该库在必要时将 `etcd` 键值存储转换为 DNS 整体，以重建内存中 DNS 查找结构的状态。
+
+CoreDNS 的工作方式与 `kubedns` 相似，但其使用的插件体系结构使其更加灵活。从 Kubernetes 1.11 开始，CoreDNS 是 Kubernetes 的默认 DNS 实现。
+
+# 6 Internet-to-Service 网络
+
+到目前为止，我们已经研究了如何在 Kubernetes 集群中路由流量。一切都很好，但不幸的是，与外界隔离你的应用程序无济于事，无法实现任何销售目标 —— 有时您将需要向外部流量公开您的服务。这种需求突出了两个相关的问题：
+
+1. 将来自 Kubernetes Service 的流量引出到 Internet
+1. 将来自 Internet 的流量引入到您的 Kubernetes Service
+
+本节将依次处理这些问题。
+
+## 6.1 Egress —— 将流量路由到 Internet
+
+从节点到公共 Internet 的流量路由是特定于网络的，并且实际上取决于网络配置为发布流量的方式。为了使本节更具体，我将使用 AWS VPC 讨论任何特定细节。
+
+在 AWS 中，Kubernetes 集群在 VPC 内运行，其中为每个节点分配了一个私有 IP 地址，该地址可从 Kubernetes 集群内访问。要使流量可以从集群外部访问，请将 Internet 网关连接到 VPC。Internet 网关有两个目的：在 VPC 路由表中为可路由到 Internet 的流量提供目标，并对已分配了公共 IP 地址的任何实例执行网络地址转换（NAT）。NAT 转换负责将节点专用于集群的内部 IP 地址更改为公共 Internet 上可用的外部 IP 地址。
+
+有了 Internet 网关后，VM 可以自由地将流量路由到 Internet。不幸的是，仍然存在一个小问题。Pod 拥有自己的 IP 地址，该 IP 地址与托管 Pod 的节点的 IP 地址不同，并且 Internet 网关上的 NAT 转换仅适用于 VM IP 地址，因为它不了解哪些 Pod 在哪些 VM 上运行 —— 网关并不知道容器的存在。让我们看看 Kubernetes 如何使用 iptables 解决这个问题（再次）。
+
+## 6.1 数据包的生命周期：Node-to-Internet
+
+在下图中，数据包起源于 Pod 命名空间（1），并经过连接到根命名空间的 veth 对（2）。一旦进入根命名空间，数据包就会从网桥移动到默认设备，因为数据包上的 IP 与连接到网桥的任何网段都不匹配。在到达根命名空间的以太网设备（3）之前，iptables 会处理数据包（3）。在这种情况下，数据包的源 IP 地址是 Pod，并且如果我们将源保留为 Pod，则 Internet 网关将拒绝它，因为网关 NAT 仅了解连接到 VM 的 IP 地址。解决方案是让 iptables 执行源 NAT（更改数据包源），以便数据包看起来是来自 VM 而不是 Pod。使用正确的源 IP 后，数据包现在可以离开 VM（4）并到达 Internet 网关（5）。Internet 网关将执行另一个 NAT，将源 IP 从 VM 内部 IP 重写为外部 IP。最终，数据包将到达公共 Internet（6）。在返回过程中，数据包遵循相同的路径，并且任何源 IP 处理都将被撤销，因此系统的每一层都将接收其能够理解的 IP 地址：节点或 VM 级别的 VM 内部，以及 Pod 内的 Pod IP 命名空间。
+
+![understanding-kubernetes-networking-model-10](/assets/img/understanding-kubernetes-networking-model-10.gif)
+> 图 10，数据包从 Pod 路由到 Internet
+
+## 6.2 Ingress —— 将 Internet 流量路由到 Kubernetes
+
+Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同样，这特定于您正在运行的网络，但是通常，Ingress 分为两个可在网络堆栈的不同部分上运行的解决方案：
+
+1. Service 负载均衡器
+1. Ingress 控制器
+
+### 6.2.1 第四层 Ingress：负载均衡器
+
+创建 Kubernetes Service 时，可以选择指定一个 负载均衡器来配合它。*云控制器*提供了负载均衡器的实现，该控制器知道如何为您服务创建负载均衡器。创建 Service 后，它将为负载均衡器通告 IP 地址。作为最终用户，您可以开始将流量定向到负载均衡器，以开始与 Service 进行通信。
+
+借助 AWS，负载均衡器可以了解其目标组中的节点，并将均衡集群中所有节点上的流量。流量到达节点后，先前在整个集群中为您的 Service 安装的 iptables 规则将确保流量到达您感兴趣的 Service 的 Pod。
+
+### 6.2.2 数据包的生命周期：LoadBalancer-to-Service
+
+让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商降为您创建一个新的负载均衡器（1）。由于负载均衡器不支持容器，因此，一旦流量到达负载均衡器，它就会分布在组成您的集群的所有 VM 上（2）。每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）—— 这些是 Service 创建期间制定的 IP 表规则，前面已经讨论过。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
+
+下图显示了托管 Pod 的 3 个 VM 前面的网络负载均衡器。传入流量（1）指向 Service 的负载均衡器。一旦负载均衡器接收到数据包（2），它就会随机选择一个 VM。在这种情况下，我们从病理上选择了没有运行 Pod 的 VM2（3）。此时，在 VM 上运行的 iptables 规则将使用通过 kube-proxy 安装到集群中的内部负载均衡规则将数据包定向到正确的 Pod。iptables 执行正确的 NAT，并将数据包转发到正确的 Pod（4）。
+
+![understanding-kubernetes-networking-model-11](/assets/img/understanding-kubernetes-networking-model-11.gif)
+> 图 11，数据包从 Internet 发送到 Service
+
+### 6.2.3 第七层 Ingress：Ingress Controller
+
+第 7 层网络入口在网络堆栈的 HTTP/HTTPS 协议范围内运行，并建立在服务之上。启用 Ingress 第一步是使用 Kubernetes 中的 `NodePort` Service 类型在 Service 上打开端口。如果将 Service 的类型字段设置为 NodePort，Kubernetes master 将在您指定的范围内分配一个端口，并且每个节点都会将该端口（每个节点上的相同端口号）代理到您的 Service 中。也就是说，使用 iptables 规则，任何定向到 Node 端口的流量都将转发到该 Service。此 Service 到 Pod 路由遵循了将流量从 Service 路由到 Pod 时已经讨论过的相同内部集群负载均衡模式。
+
+要将节点的端口暴露到 Internet，请使用 Ingress 对象。Ingress 是将 HTTP 请求映射到 Kubernetes Service 的高级 HTTP 负载均衡器。Ingress 方法将有所不同，具体取决于 Kubernetes 云供应商控制器如何实现。HTTP 负载均衡器（如第 4 层网络负载均衡器）仅了解节点 IP（而非 Pod IP），因此流量路由类似地利用 kube-proxy 在每个节点上安装的 iptables 顾泽提供的内部负载均衡。
+
+在 AWS 环境中，ALB Ingress Controller 使用 Amazon 的 7 层应用程序负载均衡器提供 Kubernetes Ingress。下图详细说明了此 Controller 创建的 AWS 组件。它还演示了 Ingress 流量从 ALB 到 Kubernetes 集群的路线。
+
+![understanding-kubernetes-networking-model-12](/assets/img/understanding-kubernetes-networking-model-12.png)
+> 图 12，Ingess Controller 设计图
+
+创建后，（1）Ingress Controller 将监听来自 Kubernetes API 服务器的 Ingress 事件。当发现满足其要求的 Ingress 资源时，它将开始创建 AWS 资源。AWS 将应用程序负载均衡器（ALB）（2）用于 Ingress 资源。负载均衡器与用于将请求路由到一个或多个已注册节点目标组一起工作。（3）在 AWS 中为 Ingress 资源描述的每个唯一的 Kubernetes Service 创建目标组。（4）侦听器是 ALB 进程，它使用您配置的协议和端口检查连接请求。侦听器是由 Ingress 控制器为 Ingress 资源注解中详细说明的每个端口创建的。最后，为 Ingress 资源中指定的每个路径创建目标组规则。这样可以确保将到特定路径的流量路由到正确的 Kubernetes Service（5）。
+
+### 6.2.4 数据包的生命周期：Ingress-to-Service
+
+流经 Ingress 的数据包的生命周期与 LoadBalancer 生命周期非常相似。主要区别在于 Ingress 知道 URL 的路径（允许并可以根据其路径将流量路由到服务），并且 Ingress 和 Node 之间的初始连接是通过 Node 上每个 Service 公开的端口进行的。
+
+让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的 Ingress 负载均衡器（1）。由于负载均衡器不支持容器，因此，一旦流量到达负载均衡器，它将通过为您的 Service 同构的端口在组成您的集群（2）的所有 VM 中进行分配。如前所述，每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
+
+![understanding-kubernetes-networking-model-13](/assets/img/understanding-kubernetes-networking-model-13.gif)
+> 图 13，数据包从 Ingress 流向 Service
+
+第 7 层负载均衡器的优点之一是它们可以识别 HTTP，因此它们知道 URL 和路径。这使您可以按照 URL 路径细分 Service 流量。它们通常还会在 HTTP 请求的 `X-Forworded-FOR` 头部中提供原始客户端的 IP 地址。
+
+# 7 总结
+
+本指南为了解 Kubernetes 网络模型及其如何实现常见网络任务提供了基础。网络领域既广泛又深入，不可能涵盖这里的所有内容。本指南应为您提供一个起点，让您深入了解感兴趣的主题并想了解更多有关的主题。每当您陷入困境时，都可以利用 Kubernetes 文档和 Kubernetes 社区来帮助您找到解决的方法。
+
+# 8 术语表
+
+待补充
 
 # 备注
 
