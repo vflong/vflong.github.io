@@ -5,9 +5,8 @@ date:   2019-12-2 17:29:39 +0800
 categories: sre
 ---
 
-英文原文：[the-difference-between-ci-and-cd](https://fire.ci/blog/the-difference-between-ci-and-cd/)
+![the-difference-between-ci-and-cd-1](/assets/img/the-difference-between-ci-and-cd-1.png)
 
----
 
 有很多介绍什么是持续集成、持续交付和持续部署的内容。但是这些流程首先要做什么？
 
@@ -120,3 +119,7 @@ categories: sre
 持续交付部署是要进行彻底检查，以发现代码问题。检查的完整性是最重要的因素。通常以测试的代码覆盖率或功能覆盖率来衡量。尽早发现错误可以防止将坏代码部署到任何环境，并节省测试团队的宝贵时间。
 
 精心设计 CI 和 CD 构建以实现这些目标并保持团队的生产力。没有工作流是完美的。问题会时不时地发生。每次使用它们时，都可以将其作为学习的经验教训来加强您的工作流程。
+
+# 备注
+
+* 原文：[https://fire.ci/blog/the-difference-between-ci-and-cd/](https://fire.ci/blog/the-difference-between-ci-and-cd/)
