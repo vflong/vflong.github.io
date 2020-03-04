@@ -199,7 +199,7 @@ Kubernetes 可以选择使用 DNS，以避免必须将 Service 的 Cluster IP �
 
 DNS Pod 由 3 个单独的容器组成：
 
-* `kubedns`：监视 Kubernetes master 节点以了解 Service 和 Endpoint 的更爱，并维护内存中的查找结构以服务 DNS 请求。
+* `kubedns`：监视 Kubernetes master 节点以了解 Service 和 Endpoint 的更改，并维护内存中的查找结构以服务 DNS 请求。
 * `dnsmasq`：添加 DNS 缓存以提高性能。
 * `sidecar`：提供单个运行状态检查点，以执行 `dnsmasq` 和 `kubedns` 的运行状况检查。
 
@@ -224,9 +224,9 @@ CoreDNS 的工作方式与 `kubedns` 相似，但其使用的插件体系结构�
 
 有了 Internet 网关后，VM 可以自由地将流量路由到 Internet。不幸的是，仍然存在一个小问题。Pod 拥有自己的 IP 地址，该 IP 地址与托管 Pod 的节点的 IP 地址不同，并且 Internet 网关上的 NAT 转换仅适用于 VM IP 地址，因为它不了解哪些 Pod 在哪些 VM 上运行 —— 网关并不知道容器的存在。让我们看看 Kubernetes 如何使用 iptables 解决这个问题（再次）。
 
-## 6.1 数据包的生命周期：Node-to-Internet
+## 6.1.1 数据包的生命周期：Node-to-Internet
 
-在下图中，数据包起源于 Pod 命名空间（1），并经过连接到根命名空间的 veth 对（2）。一旦进入根命名空间，数据包就会从网桥移动到默认设备，因为数据包上的 IP 与连接到网桥的任何网段都不匹配。在到达根命名空间的以太网设备（3）之前，iptables 会处理数据包（3）。在这种情况下，数据包的源 IP 地址是 Pod，并且如果我们将源保留为 Pod，则 Internet 网关将拒绝它，因为网关 NAT 仅了解连接到 VM 的 IP 地址。解决方案是让 iptables 执行源 NAT（更改数据包源），以便数据包看起来是来自 VM 而不是 Pod。使用正确的源 IP 后，数据包现在可以离开 VM（4）并到达 Internet 网关（5）。Internet 网关将执行另一个 NAT，将源 IP 从 VM 内部 IP 重写为外部 IP。最终，数据包将到达公共 Internet（6）。在返回过程中，数据包遵循相同的路径，并且任何源 IP 处理都将被撤销，因此系统的每一层都将接收其能够理解的 IP 地址：节点或 VM 级别的 VM 内部，以及 Pod 内的 Pod IP 命名空间。
+在下图中，数据包起源于 Pod 命名空间（1），并经过连接到根命名空间的 veth 对（2）。一旦进入根命名空间，数据包就会从网桥移动到默认设备，因为数据包上的 IP 与连接到网桥的任何网段都不匹配。在到达根命名空间的以太网设备（3）之前，iptables 会处理数据包（3）。在这种情况下，数据包的源 IP 地址是 Pod，并且如果我们将源保留为 Pod，则 Internet 网关将拒绝它，因为网关 NAT 仅了解连接到 VM 的 IP 地址。解决方案是让 iptables 执行源 NAT（更改数据包源），以便数据包看起来是来自 VM 而不是 Pod。使用正确的源 IP 后，数据包现在可以离开 VM（4）并到达 Internet 网关（5）。Internet 网关将执行另一个 NAT，将源 IP 从 VM 内部 IP 重写为外部 IP。最终，数据包将到达公共 Internet（6）。在返回过程中，数据包遵循相同的路径，并且任何源 IP 处理都将被撤销，因此系统的每一层都将接收其能够理解的 IP 地址：节点或 VM 级别的 VM 内部，以及 Pod 命名空间内的 Pod IP。
 
 ![understanding-kubernetes-networking-model-10](/assets/img/understanding-kubernetes-networking-model-10.gif)
 > 图 10，数据包从 Pod 路由到 Internet
@@ -240,13 +240,13 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 
 ### 6.2.1 第四层 Ingress：负载均衡器
 
-创建 Kubernetes Service 时，可以选择指定一个 负载均衡器来配合它。*云控制器*提供了负载均衡器的实现，该控制器知道如何为您服务创建负载均衡器。创建 Service 后，它将为负载均衡器通告 IP 地址。作为最终用户，您可以开始将流量定向到负载均衡器，以开始与 Service 进行通信。
+创建 Kubernetes Service 时，可以选择指定一个负载均衡器来配合它。*云控制器*提供了负载均衡器的实现，该控制器知道如何为您服务创建负载均衡器。创建 Service 后，它将为负载均衡器通告 IP 地址。作为最终用户，您可以开始将流量定向到负载均衡器，以开始与 Service 进行通信。
 
 借助 AWS，负载均衡器可以了解其目标组中的节点，并将均衡集群中所有节点上的流量。流量到达节点后，先前在整个集群中为您的 Service 安装的 iptables 规则将确保流量到达您感兴趣的 Service 的 Pod。
 
 ### 6.2.2 数据包的生命周期：LoadBalancer-to-Service
 
-让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商降为您创建一个新的负载均衡器（1）。由于负载均衡器不支持容器，因此，一旦流量到达负载均衡器，它就会分布在组成您的集群的所有 VM 上（2）。每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）—— 这些是 Service 创建期间制定的 IP 表规则，前面已经讨论过。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
+让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的负载均衡器（1）。由于负载均衡器意识不到容器的存在，因此，一旦流量到达负载均衡器，它就会分布在组成您的集群的所有 VM 上（2）。每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）—— 这些是 Service 创建期间制定的 IP 表规则，前面已经讨论过。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
 
 下图显示了托管 Pod 的 3 个 VM 前面的网络负载均衡器。传入流量（1）指向 Service 的负载均衡器。一旦负载均衡器接收到数据包（2），它就会随机选择一个 VM。在这种情况下，我们从病理上选择了没有运行 Pod 的 VM2（3）。此时，在 VM 上运行的 iptables 规则将使用通过 kube-proxy 安装到集群中的内部负载均衡规则将数据包定向到正确的 Pod。iptables 执行正确的 NAT，并将数据包转发到正确的 Pod（4）。
 
@@ -270,12 +270,12 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 
 流经 Ingress 的数据包的生命周期与 LoadBalancer 生命周期非常相似。主要区别在于 Ingress 知道 URL 的路径（允许并可以根据其路径将流量路由到服务），并且 Ingress 和 Node 之间的初始连接是通过 Node 上每个 Service 公开的端口进行的。
 
-让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的 Ingress 负载均衡器（1）。由于负载均衡器不支持容器，因此，一旦流量到达负载均衡器，它将通过为您的 Service 同构的端口在组成您的集群（2）的所有 VM 中进行分配。如前所述，每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
+让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的 Ingress 负载均衡器（1）。由于负载均衡器意识不到容器的存在，因此，一旦流量到达负载均衡器，它将通过为您的 Service 广播的端口在组成您的集群（2）的所有 VM 中进行分配。如前所述，每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
 
 ![understanding-kubernetes-networking-model-13](/assets/img/understanding-kubernetes-networking-model-13.gif)
 > 图 13，数据包从 Ingress 流向 Service
 
-第 7 层负载均衡器的优点之一是它们可以识别 HTTP，因此它们知道 URL 和路径。这使您可以按照 URL 路径细分 Service 流量。它们通常还会在 HTTP 请求的 `X-Forworded-FOR` 头部中提供原始客户端的 IP 地址。
+第 7 层负载均衡器的优点之一是它们可以识别 HTTP，因此它们知道 URL 和路径。这使您可以按照 URL 路径细分 Service 流量。它们通常还会在 HTTP 请求的 `X-Forworded-For` 头部中提供原始客户端的 IP 地址。
 
 # 7 总结
 
