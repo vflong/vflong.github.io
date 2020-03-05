@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Kubernetes Pod 安全策略最佳实践"
+title:  "【译文】Kubernetes Pod 安全策略最佳实践"
 date:   2020-02-24 21:46:54 +0800
 categories: sre k8s
 ---

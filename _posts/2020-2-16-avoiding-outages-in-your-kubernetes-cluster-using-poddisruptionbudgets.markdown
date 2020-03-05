@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "使用 PodDisruptionBudgets 避免 Kubernetes 集群中断"
+title:  "【译文】使用 PodDisruptionBudgets 避免 Kubernetes 集群中断"
 date:   2020-2-16 22:56:38 +0800
 categories: sre k8s
 ---

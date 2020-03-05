@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Kubernetes deployments 排障指南"
+title:  "【译文】Kubernetes deployments 排障指南"
 date:   2019-12-17 18:40:41 +0800
 categories: sre
 ---

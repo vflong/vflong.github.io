@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Kubernetes 集群的零停机服务器更新"
+title:  "【译文】Kubernetes 集群的零停机服务器更新"
 date:   2020-2-16 11:02:14 +0800
 categories: sre k8s
 ---

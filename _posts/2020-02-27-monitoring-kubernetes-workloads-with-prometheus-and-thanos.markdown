@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "使用 Prometheus 和 Thanos 监控 Kubernetes 工作负载"
+title:  "【译文】使用 Prometheus 和 Thanos 监控 Kubernetes 工作负载"
 date:   2020-02-27 21:24:20 +0800
 categories: sre k8s
 ---

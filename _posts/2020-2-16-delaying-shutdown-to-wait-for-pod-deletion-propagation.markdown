@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "延迟关闭以等待 Pod 删除传播"
+title:  "【译文】延迟关闭以等待 Pod 删除传播"
 date:   2020-2-16 21:20:18 +0800
 categories: sre k8s
 ---

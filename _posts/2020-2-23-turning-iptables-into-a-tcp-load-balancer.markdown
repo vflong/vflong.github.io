@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "将 IPTables 变成 TCP 负载均衡器"
+title:  "【译文】将 IPTables 变成 TCP 负载均衡器"
 date:   2020-2-23 14:25:42 +0800
 categories: sre network
 ---

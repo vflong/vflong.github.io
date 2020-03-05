@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Kubernetes 网络模型指南"
+title:  "【译文】Kubernetes 网络模型指南"
 date:   2020-2-29 21:42:47 +0800
 categories: sre k8s
 ---

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "优雅关闭 Kubernetes 集群中的 Pod"
+title:  "【译文】优雅关闭 Kubernetes 集群中的 Pod"
 date:   2020-2-16 16:31:18 +0800
 categories: sre k8s
 ---

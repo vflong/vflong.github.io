@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "CI 与 CD 的真正区别"
+title:  "【译文】CI 与 CD 的真正区别"
 date:   2019-12-2 17:29:39 +0800
 categories: sre
 ---
