@@ -187,6 +187,70 @@ Swap:            0          0          0
 
 # sar -n DEV 1
 
+```bash
+$ sar -n DEV 1
+Linux 3.13.0-49-generic (titanclusters-xxxxx)  07/14/2015     _x86_64_    (32 CPU)
+
+12:16:48 AM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+12:16:49 AM      eth0  18763.00   5032.00  20686.42    478.30      0.00      0.00      0.00      0.00
+12:16:49 AM        lo     14.00     14.00      1.36      1.36      0.00      0.00      0.00      0.00
+12:16:49 AM   docker0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+
+12:16:49 AM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
+12:16:50 AM      eth0  19763.00   5101.00  21999.10    482.56      0.00      0.00      0.00      0.00
+12:16:50 AM        lo     20.00     20.00      3.25      3.25      0.00      0.00      0.00      0.00
+12:16:50 AM   docker0      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
+^C
+```
+
+使用此工具来检查网络接口吞吐量：rxkB/s 和 txkB/s，作为工作量的度量标准，还可以检查是否已达到任何限制。在上面的示例中，eth0 接收达到 22 Mbytes/s 即 176 Mbits/sec（远低于 1 Gbit/sec 的限制）。
+
+此版本还具有 %ifutil，用于设备利用率（全双工的双向最大），这也是我们使用 Brendan 的 [nicstat 工具](https://github.com/scotte/nicstat) 进行测量的结果。与 nicstat 一样，这很难解决，并且宅本利（0.00）中似乎不起作用。
+
+# 9. sar -n TCP,ETCP 1
+
+这是一些关键 TCP 指标的摘要视图。这些包括：
+
+* **active/s**：每秒本地启动的 TCP 连接数（例如，通过 connect()）。
+* **passive/s**：每秒远程启动的 TCP 连接数（例如，通过 accept()）。
+* **retrans/s**：每秒 TCP 重传的次数。
+
+主动和被动计数通常可以用作服务器负载的粗略度量：新接受的连接数（被动）和下游连接数（主动）。将主动视为出站，将被动视为入站可能会有所帮助，但这并不严格（例如，将 localhost 连接到 localhost）。
+
+重新传输是网络或服务器问题的迹象；它可能是不可靠的网络（例如，公共 Internet），也可能是由于服务器超载并丢弃了数据包。上面的示例仅显示每秒一个新的 TCP 连接。
+
+# 10. top
+
+```bash
+$ top
+top - 00:15:40 up 21:56,  1 user,  load average: 31.09, 29.87, 29.92
+Tasks: 871 total,   1 running, 868 sleeping,   0 stopped,   2 zombie
+%Cpu(s): 96.8 us,  0.4 sy,  0.0 ni,  2.7 id,  0.1 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem:  25190241+total, 24921688 used, 22698073+free,    60448 buffers
+KiB Swap:        0 total,        0 used,        0 free.   554208 cached Mem
+
+   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+ 20248 root      20   0  0.227t 0.012t  18748 S  3090  5.2  29812:58 java
+  4213 root      20   0 2722544  64640  44232 S  23.5  0.0 233:35.37 mesos-slave
+ 66128 titancl+  20   0   24344   2332   1172 R   1.0  0.0   0:00.07 top
+  5235 root      20   0 38.227g 547004  49996 S   0.7  0.2   2:02.74 java
+  4299 root      20   0 20.015g 2.682g  16836 S   0.3  1.1  33:14.42 java
+     1 root      20   0   33620   2920   1496 S   0.0  0.0   0:03.82 init
+     2 root      20   0       0      0      0 S   0.0  0.0   0:00.02 kthreadd
+     3 root      20   0       0      0      0 S   0.0  0.0   0:05.35 ksoftirqd/0
+     5 root       0 -20       0      0      0 S   0.0  0.0   0:00.00 kworker/0:0H
+     6 root      20   0       0      0      0 S   0.0  0.0   0:06.94 kworker/u256:0
+     8 root      20   0       0      0      0 S   0.0  0.0   2:38.05 rcu_sched
+```
+
+top 命令包括我们之前检查的许多指标。可以很方便地运行它以查看是否有任何与以前的命令看起来截然不同，这表明负载是可变的。
+
+不利的一面是，随着时间的推移很难看到模式，这在提供滚动输出的 vmstat 和 pidstat 之类的工具中可能更清楚。如果您没有足够快地暂停输出（Ctrl-S 暂停，Ctrl-Q 继续），并且屏幕清楚、间歇性问题的证据也可能丢失。
+
+# 后续分析
+
+您可以应用更多命令和方法来进行更深入的研究。请参阅 Velocity 2015 的 Brendan 的 [Linux 性能工具教程](https://medium.com/@Netflix_Techblog/netflix-at-velocity-2015-linux-performance-tools-51964ddb81cf)，该教程可处理 40 多个命令，涉及可观察性、基准测试、调优、静态性能调优和跟踪。
+
 # 备注
 
 * 原文：[https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55](https://netflixtechblog.com/linux-performance-analysis-in-60-000-milliseconds-accc10403c55)
