@@ -195,7 +195,7 @@ Kubernetes 的最新版本（1.11）加入了用于集群内负载均衡的第�
 
 ## 5.5 使用 DNS
 
-Kubernetes 可以选择使用 DNS，以避免必须将 Service 的 Cluster IP 地址硬编码到您的应用程序中。Kubernetes DNS 作为在集群上计划的常规 Kubernetes 服务运行。它配置在每个节点上运行的 `kubelet`，以便容器使用 DNS 服务的 IP 来解析 DNS 名称。为集群中定义的每个服务（包括 DNS 服务器本身）分配一个 DNS 名称。DNS 记录根（root）据您的需要将 DNS 名称解析为 Service 的 cluster IP 或 Pod 的 IP。SRV 记录用于指定运行 Service 的特定命名端口。
+Kubernetes 可以选择使用 DNS，以避免必须将 Service 的 Cluster IP 地址硬编码到您的应用程序中。Kubernetes DNS 作为在集群上计划的常规 Kubernetes 服务运行。它配置在每个节点上运行的 `kubelet`，以便容器使用 DNS 服务的 IP 来解析 DNS 名称。为集群中定义的每个服务（包括 DNS 服务器本身）分配一个 DNS 名称。DNS 记录根据您的需要将 DNS 名称解析为 Service 的 cluster IP 或 Pod 的 IP。SRV 记录用于指定运行 Service 的特定命名端口。
 
 DNS Pod 由 3 个单独的容器组成：
 
@@ -246,7 +246,7 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 
 ### 6.2.2 数据包的生命周期：LoadBalancer-to-Service
 
-让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的负载均衡器（1）。由于负载均衡器意识不到容器的存在，因此，一旦流量到达负载均衡器，它就会分布在组成您的集群的所有 VM 上（2）。每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）—— 这些是 Service 创建期间制定的 IP 表规则，前面已经讨论过。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
+让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的负载均衡器（1）。由于负载均衡器意识不到容器的存在，因此，一旦流量到达负载均衡器，它就会分发到组成您的集群的所有 VM 上（2）。每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）—— 这些是 Service 创建期间制定的 IP 表规则，前面已经讨论过。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
 
 下图显示了托管 Pod 的 3 个 VM 前面的网络负载均衡器。传入流量（1）指向 Service 的负载均衡器。一旦负载均衡器接收到数据包（2），它就会随机选择一个 VM。在这种情况下，我们从病理上选择了没有运行 Pod 的 VM2（3）。此时，在 VM 上运行的 iptables 规则将使用通过 kube-proxy 安装到集群中的内部负载均衡规则将数据包定向到正确的 Pod。iptables 执行正确的 NAT，并将数据包转发到正确的 Pod（4）。
 
