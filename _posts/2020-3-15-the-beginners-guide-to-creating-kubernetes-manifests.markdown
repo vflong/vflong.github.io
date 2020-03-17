@@ -5,9 +5,9 @@ date:   2020-3-15 23:24:48 +0800
 categories: sre k8s
 ---
 
-作为 Kubernetes 长期用户，我最常听到的问题是“我该如何创建 manifest（描述如何在集群中创建和管理资源的文件）？”当我问提出问题的人他们当前如何创建资源时，我经常听到他们将在网上找到的一堆随机 manifest 拼凑在一起，或者根据网站的建议使用 `$(kubectl -f http://site/manifest)`。
+作为 Kubernetes 长期用户，我最常听到的问题是“我该如何创建 manifest（描述如何在集群中创建和管理资源的文件）？”当我问提出问题的人他们当前如何创建资源时，我经常听到他们将在网上随机找到的一堆 manifest 拼凑在一起，或者根据网站的建议使用 `$(kubectl -f http://site/manifest)`。
 
-当我开始使用 Kubernetes 时，学习如何从头开始生成 manifest 令我感到困惑。我找不到完整的指南来说明如何从头开始创建资源，并且精通此过程所需的信息分散在各个站点。为了帮助刚进入 Kubernetes 领域的人们，我想我应该记录一下我用来处理“如何从头开始创建 manifest”的过程这个问题。
+当我开始使用 Kubernetes 时，学习如何从头开始生成 manifest 令我感到困惑。我找不到关于如何从头开始创建资源的完整指南，并且精通此过程所需的信息分散在各个站点。为了帮助刚进入 Kubernetes 领域的人们，我想我应该记录一下我用来处理“如何从头开始创建 manifest”的过程这个问题。
 
 因此，让我们从基础开始。Kubernetes manifest 描述了您要创建的资源（例如，Deployment、Service、Pod 等），以及希望这些资源在集群中运作的方式。接下来，我将描述如何更多地了解每种资源类型。当您在 manifest 中定义资源时，它将包含以下 4 个字段：
 
@@ -142,7 +142,7 @@ spec:
 status: {}
 ```
 
-一点有了基础 manifest，就可以通过在 `spec: ` 和 `metadata: ` 部分中添加其他字段来扩展它。您还可以在 `kubectl explain` 中添加 `--recursive` 选项，以获取各个字段的分层视图。下面的示例显示如何递归显示可用于自定义容器字段的每个选项：
+一旦有了基础 manifest，就可以通过在 `spec: ` 和 `metadata: ` 部分中添加其他字段来扩展它。您还可以在 `kubectl explain` 中添加 `--recursive` 选项，以获取各个字段的分层视图。下面的示例显示如何递归显示可用于自定义容器字段的每个选项：
 
 ```bash
 $ kubectl explain deployment.spec.template.spec.containers --recursive | more
@@ -186,7 +186,7 @@ DESCRIPTION:
      operators are In, NotIn, Exists and DoesNotExist.
 ```
 
-我希望这种有关如何开始使用 Kubernetes manifest 的简短说明会有所帮助。这篇文章绝对是一个正在进行的工，我计划在出现问题时将其添加到其中。如果您有任何问题或意见，请在 twitter 上联系我。
+我希望这种有关如何开始使用 Kubernetes manifest 的简短说明会有所帮助。这篇文章仍然是一个正在进行的工作，我计划在出现问题时将其添加到其中。如果您有任何问题或意见，请在 twitter 上联系我。
 
 # 参考
 
