@@ -19,11 +19,11 @@ Kubernetes 是基于一些核心概念构建的，这些核心概念被组合为
 
 ## 1.1 Kubernetes API Server
 
-在 Kubernetes 中，一切都是由 *Kubernetes API Server*（`kube-apiserver`）服务的 API 调用。API server 是通往 [etcd](https://github.com/coreos/etcd) 数据存储的网关，该存储维护应用程序集群的期望状态。要更新 Kubernetes 集群的状态，您需要对 API server 进行 API 调用，并描述期望状态。
+在 Kubernetes 中，一切都是由 *Kubernetes API Server*（`kube-apiserver`）的 API 调用。API Server 是通往 [etcd](https://github.com/coreos/etcd) 数据存储的网关，该存储维护应用程序集群的期望状态。要更新 Kubernetes 集群的状态，您需要对 API Server 进行 API 调用，并描述期望状态。
 
 ## 1.2 Controllers
 
-*Controllers* 是用于构建 Kubernetes 的核心抽象。使用 API server 声明集群的期望状态后，控制器会不断监听 API server 的状态并对任何更改做出响应，以确保集群的当前状态与期望状态匹配。控制器使用一个简单的循环进行操作，该循环不断地根（root）据集群的期望状态检查集群的当前状态。如果存在任何差异，则控制器执行任务以使当前状态与期望状态匹配。用伪代码表示如下：
+*Controllers* 是用于构建 Kubernetes 的核心抽象。使用 API Server 声明集群的期望状态后，控制器会不断监听 API Server 的状态并对任何更改做出响应，以确保集群的当前状态与期望状态匹配。控制器使用一个简单的循环进行操作，该循环不断地根据集群的期望状态检查集群的当前状态。如果存在任何差异，则控制器执行任务以使当前状态与期望状态匹配。用伪代码表示如下：
 
 ```java
 while true:
@@ -36,7 +36,7 @@ while true:
     do(tasks to get to Y)
 ```
 
-例如，当您使用 API server 创建新的 Pod 时，Kubernetes 调度程序（控制器）会注意到更改，并决定将 Pod 放置在集群中的位置。然后，它使用 API server（由 etcd 支持）写入状态变更。然后，`kubelet`（控制器）会注意到新的变更，并设置所需的网络功能以使 Pod 在集群中可访问。在这里，两个单独的控制器对两个单独的状态更改做出响应，以使集群的实际情况与用户的期望相匹配。
+例如，当您使用 API Server 创建新的 Pod 时，Kubernetes 调度程序（控制器）会注意到更改，并决定将 Pod 放置在集群中的位置。然后，它使用 API Server（由 etcd 支持）写入状态变更。然后，`kubelet`（控制器）会注意到新的变更，并设置所需的网络功能以使 Pod 在集群中可访问。在这里，两个单独的控制器对两个单独的状态更改做出响应，以使集群的实际情况与用户的期望相匹配。
 
 ## 1.3 Pods
 
@@ -44,7 +44,7 @@ Pod 是 Kubernetes 的原子单位 —— 构建应用程序的最小可部署�
 
 ## 1.4 Nodes
 
-Node 节点是运行 Kubernetes 集群的机器。这些可以是裸机、虚拟机或其他任何东西。主机一词通常与节点互换使用。我将尝试使用术语“具有一致性的节点”，但有时会根（root）据上下文使用“虚拟机”一词来指代节点。
+Node 节点是运行 Kubernetes 集群的机器。这些可以是裸机、虚拟机或其他任何东西。主机一词通常与节点互换使用。我将尝试使用术语“具有一致性的节点”，但有时会根据上下文使用“虚拟机”一词来指代节点。
 
 # 2 Kubernetes 网络模型
 
@@ -125,7 +125,7 @@ Linux 以太网桥是一种虚拟的第 2 层网络设备，用于将两个或�
 
 ## 4.1 数据包的生命周期：Pod-to-Pod，同一节点
 
-给定将每个 Pod 隔离到自己的网络堆栈的网络命名空间，将每个命名空间连接到跟命名空间的虚拟以太网设备，以及将命名空间连接在一起的网桥，我们终于可以在同一节点上的 Pod 之间发送流量了。如图 6 所示：
+给定将每个 Pod 隔离到自己的网络堆栈的网络命名空间，将每个命名空间连接到根（root）命名空间的虚拟以太网设备，以及将命名空间连接在一起的网桥，我们终于可以在同一节点上的 Pod 之间发送流量了。如图 6 所示：
 
 ![understanding-kubernetes-networking-model-6](/assets/img/understanding-kubernetes-networking-model-6.gif)
 > 图 6，数据包在同一节点上的 Pod 之间传输
@@ -143,7 +143,7 @@ Kubernetes 的网络模型规定 Pod 必须通过其跨节点的 IP 地址才能
 ![understanding-kubernetes-networking-model-7](/assets/img/understanding-kubernetes-networking-model-7.gif)
 > 图 7，数据包在不同节点上的 Pod 之间传输
 
-图 7 从与图 6 相同的请求开始，除了目标 Pod（以绿色突出显示）与源 Pod（以蓝色突出显示）位于不同的 Node 上。数据包首先通过 Pod 1 的以太网设备发送，该设备与根（root）命名空间（1）中的虚拟以太网设备配对。最终，数据包最终到达根（root）命名空间的网络桥（2）。ARP 将在网桥上失败，因为没有与数据包的 MAC 地址匹配的设备连接到该网桥。失败之后，网桥会将数据包发送出默认路由 —— 根（root）命名空间的 `eth0` 设备。此时，路由离开节点并进入网络（3）。现在我们假设网络可以根（root）据分配给节点（4）的 CIDR 块将数据包路由到正确的节点。数据包进入目标节点的根（root）命名空间（VM 2 上的 `eth0`），在此它通过网桥路由到正确的虚拟以太网设备（5）。最后，通过流经 Pod 4 命名空间（6）中的虚拟以太网设备对来完成路由。一般而言，每个节点都知道如何将数据包传递到其中运行的 Pod。数据包到达目标节点后，数据包的流动方式与在同一节点上的 Pod 之间路由流量的方式相同。
+图 7 从与图 6 相同的请求开始，除了目标 Pod（以绿色突出显示）与源 Pod（以蓝色突出显示）位于不同的 Node 上。数据包首先通过 Pod 1 的以太网设备发送，该设备与根（root）命名空间（1）中的虚拟以太网设备配对。最终，数据包最终到达根（root）命名空间的网络桥（2）。ARP 将在网桥上失败，因为没有与数据包的 MAC 地址匹配的设备连接到该网桥。失败之后，网桥会将数据包发送出默认路由 —— 根（root）命名空间的 `eth0` 设备。此时，路由离开节点并进入网络（3）。现在我们假设网络可以根据分配给节点（4）的 CIDR 块将数据包路由到正确的节点。数据包进入目标节点的根（root）命名空间（VM 2 上的 `eth0`），在此它通过网桥路由到正确的虚拟以太网设备（5）。最后，通过流经 Pod 4 命名空间（6）中的虚拟以太网设备对来完成路由。一般而言，每个节点都知道如何将数据包传递到其中运行的 Pod。数据包到达目标节点后，数据包的流动方式与在同一节点上的 Pod 之间路由流量的方式相同。
 
 为了便于理解，我们回避了如何配置网络，以将 Pod IP 的流量路由到负责这些 IP 的正确节点。这是特定于网络的，但是查看特定示例将提供有关所涉及问题的一些见解。例如，对于 AWS，Amazon 为 Kubernetes 维护了一个容器网络插件，该插件允许使用[容器网络接口（CNI）插件](https://github.com/aws/amazon-vpc-cni-k8s)在 Amazon VPC 环境中运行节点到节点网络。
 
@@ -163,7 +163,7 @@ Kubernetes *Service* 管理一组 Pod 的状态，使您可以跟踪随时间动
 
 为了在集群内执行负载均衡，Kubernetes 依赖于 Linux 内置的网络框架 `netfilter`。Netfilter 是 Linux 提供的框架，它允许以自定义处理程序的形式实现各种与网络相关的操作。Netfilter 提供了各种功能和操作，用于数据包过滤，网络地址转换和端口转换，这些功能和操作提供了通过网络定向数据包所需的功能，以及提供禁止数据包到达计算机网络内敏感位置的功能。
 
-`iptables` 是一个用户空间程序，它提供了一个基于表的系统，用于定义使用 netfilter 框架处理和转换数据包的规则。在 Kubernetes 中，iptables 规则由 kube-proxy 控制器配置，该控制器监视 Kubernetes API server 的更改。当对 Service 或 Pod 的更改更新了服务的虚拟 IP 地址或 Pod 的 IP 地址时，将更新 iptables 规则以将针对 Service 的流量正确地路由到后备 Pod。iptables 规则会监视发往 Service 虚拟 IP 的流量，并在匹配时监视，从可用 Pod 的集合中选择一个随机 Pod IP 地址，并且 iptables 规则将数据包的目标 IP 地址从 Service 的虚拟 IP 更改为所选 Pod 的 IP。随着 Pod 启停，iptables 规则集将更新以反映集群状态的变化。换句话说，iptables 已在计算机上完成了负载均衡，以将定向到 Service IP 的流量传输到实际 Pod 的 IP。
+`iptables` 是一个用户空间程序，它提供了一个基于表的系统，用于定义使用 netfilter 框架处理和转换数据包的规则。在 Kubernetes 中，iptables 规则由 kube-proxy 控制器配置，该控制器监视 Kubernetes API Server 的更改。当对 Service 或 Pod 的更改更新了服务的虚拟 IP 地址或 Pod 的 IP 地址时，将更新 iptables 规则以将针对 Service 的流量正确地路由到后备 Pod。iptables 规则会监视发往 Service 虚拟 IP 的流量，并在匹配时监视，从可用 Pod 的集合中选择一个随机 Pod IP 地址，并且 iptables 规则将数据包的目标 IP 地址从 Service 的虚拟 IP 更改为所选 Pod 的 IP。随着 Pod 启停，iptables 规则集将更新以反映集群状态的变化。换句话说，iptables 已在计算机上完成了负载均衡，以将定向到 Service IP 的流量传输到实际 Pod 的 IP。
 
 在返回的路径上，IP 地址来自目标 Pod。在这种情况下，iptables 再次重写 IP 表头，以用该 Service 的 IP 替换 Pod IP，以便 Pod 认为它一直在与该服务的 IP 进行通信。
 
@@ -264,11 +264,11 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 ![understanding-kubernetes-networking-model-12](/assets/img/understanding-kubernetes-networking-model-12.png)
 > 图 12，Ingess Controller 设计图
 
-创建后，（1）Ingress Controller 将监听来自 Kubernetes API server 的 Ingress 事件。当发现满足其要求的 Ingress 资源时，它将开始创建 AWS 资源。AWS 将应用程序负载均衡器（ALB）（2）用于 Ingress 资源。负载均衡器与用于将请求路由到一个或多个已注册节点目标组一起工作。（3）在 AWS 中为 Ingress 资源描述的每个唯一的 Kubernetes Service 创建目标组。（4）侦听器是 ALB 进程，它使用您配置的协议和端口检查连接请求。侦听器是由 Ingress 控制器为 Ingress 资源注解中详细说明的每个端口创建的。最后，为 Ingress 资源中指定的每个路径创建目标组规则。这样可以确保将到特定路径的流量路由到正确的 Kubernetes Service（5）。
+创建后，（1）Ingress Controller 将监听来自 Kubernetes API Server 的 Ingress 事件。当发现满足其要求的 Ingress 资源时，它将开始创建 AWS 资源。AWS 将应用程序负载均衡器（ALB）（2）用于 Ingress 资源。负载均衡器与用于将请求路由到一个或多个已注册节点目标组一起工作。（3）在 AWS 中为 Ingress 资源描述的每个唯一的 Kubernetes Service 创建目标组。（4）侦听器是 ALB 进程，它使用您配置的协议和端口检查连接请求。侦听器是由 Ingress 控制器为 Ingress 资源注解中详细说明的每个端口创建的。最后，为 Ingress 资源中指定的每个路径创建目标组规则。这样可以确保将到特定路径的流量路由到正确的 Kubernetes Service（5）。
 
 ### 6.2.4 数据包的生命周期：Ingress-to-Service
 
-流经 Ingress 的数据包的生命周期与 LoadBalancer 生命周期非常相似。主要区别在于 Ingress 知道 URL 的路径（允许并可以根（root）据其路径将流量路由到服务），并且 Ingress 和 Node 之间的初始连接是通过 Node 上每个 Service 公开的端口进行的。
+流经 Ingress 的数据包的生命周期与 LoadBalancer 生命周期非常相似。主要区别在于 Ingress 知道 URL 的路径（允许并可以根据其路径将流量路由到服务），并且 Ingress 和 Node 之间的初始连接是通过 Node 上每个 Service 公开的端口进行的。
 
 让我们看看这在实践中是如何工作的。部署服务后，您正在使用的云供应商将为您创建一个新的 Ingress 负载均衡器（1）。由于负载均衡器意识不到容器的存在，因此，一旦流量到达负载均衡器，它将通过为您的 Service 广播的端口在组成您的集群（2）的所有 VM 中进行分配。如前所述，每个 VM 上的 iptables 规则会将来自负载均衡器的传入流量定向到正确的 Pod（3）。Pod 对客户端的响应将返回 Pod 的 IP，但客户端需要具有负载均衡器的 IP 地址。如前所述，iptables 和 `conntrack` 用于在返回路径上正确重写 IP。
 
@@ -283,7 +283,7 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 
 # 8 术语表
 
-Kubernetes 依靠几种现有技术来构建可运行的集群。全面探索每种技术不在本指南的讨论范围内，但是本节将对每种技术进行足够详细的介绍，以供讨论之用。您可以随意浏览本书、完全跳过本节或者在感到困惑或需要复习时根（root）据需要引用它。
+Kubernetes 依靠几种现有技术来构建可运行的集群。全面探索每种技术不在本指南的讨论范围内，但是本节将对每种技术进行足够详细的介绍，以供讨论之用。您可以随意浏览本书、完全跳过本节或者在感到困惑或需要复习时根据需要引用它。
 
 ## 第 2 层网络
 
