@@ -158,9 +158,14 @@ $ kaf samples/bookinfo/networking/bookinfo-gateway.yaml
 
 ```bash
 $ kgs -n istio-system istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+172.19.0.2
 ```
 
 访问 [http://localhost:8080/productpage](http://localhost:8080/productpage) 或者 [http://172.19.0.2/productpage](http://172.19.0.2/productpage)
+
+# 访问 kiali
+$ istioctl dashboard kiali                                                                         
+http://localhost:20001/kiali
 
 
 ---
@@ -170,3 +175,4 @@ $ kgs -n istio-system istio-ingressgateway -o jsonpath='{.status.loadBalancer.in
 * [https://dev.to/bufferings/tried-k8s-istio-in-my-local-machine-with-k3d-52gg](https://dev.to/bufferings/tried-k8s-istio-in-my-local-machine-with-k3d-52gg)
 * [https://github.com/rancher/k3d/issues/104](https://github.com/rancher/k3d/issues/104)
 * [https://github.com/rancher/k3d](https://github.com/rancher/k3d)
+* [https://istio.io/docs/examples/bookinfo/](https://istio.io/docs/examples/bookinfo/)
