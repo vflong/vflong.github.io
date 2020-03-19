@@ -17,6 +17,8 @@ Linux ubuntu 5.3.0-42-generic #34~18.04.1-Ubuntu SMP Fri Feb 28 13:42:26 UTC 202
 
 * 安装 oh-my-zsh，请参考 [Linux 使用笔记]({% post_url 2019-11-04-linux-use %})
 
+* 配置镜像加速，推荐使用[阿里云镜像加速器](https://help.aliyun.com/document_detail/60750.html)
+
 # 安装 k3d
 ```bash
 $ curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
@@ -98,7 +100,7 @@ istio-system   istio-ingressgateway-7fc66f49dd-hc4sg     1/1     Running     0  
 
 ```bash
 # 开启注入
-kubectl label namespace default istio-injection=enabled
+$ kubectl label namespace default istio-injection=enabled
 
 # 部署 bookinfo
 $ kaf samples/bookinfo/platform/kube/bookinfo.yaml                            
@@ -164,9 +166,11 @@ $ kgs -n istio-system istio-ingressgateway -o jsonpath='{.status.loadBalancer.in
 访问 [http://localhost:8080/productpage](http://localhost:8080/productpage) 或者 [http://172.19.0.2/productpage](http://172.19.0.2/productpage)
 
 # 访问 kiali
+
+```bash
 $ istioctl dashboard kiali                                                                         
 http://localhost:20001/kiali
-
+```
 
 ---
 
@@ -176,3 +180,4 @@ http://localhost:20001/kiali
 * [https://github.com/rancher/k3d/issues/104](https://github.com/rancher/k3d/issues/104)
 * [https://github.com/rancher/k3d](https://github.com/rancher/k3d)
 * [https://istio.io/docs/examples/bookinfo/](https://istio.io/docs/examples/bookinfo/)
+* [https://help.aliyun.com/document_detail/60750.html](https://help.aliyun.com/document_detail/60750.html)
