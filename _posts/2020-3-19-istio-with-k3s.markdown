@@ -7,12 +7,17 @@ categories: sre k8s
 
     快速配置一个本地 Istio 环境。
 
-# 背景信息
+# 准备工作
 
 * 操作系统
+
 ```bash
+# 系统信息
 $ uname -a
 Linux ubuntu 5.3.0-42-generic #34~18.04.1-Ubuntu SMP Fri Feb 28 13:42:26 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+
+# 关闭 swap
+$ swapoff -a
 ```
 
 * 安装 oh-my-zsh，请参考 [Linux 使用笔记]({% post_url 2019-11-04-linux-use %})
