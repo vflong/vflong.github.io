@@ -40,6 +40,7 @@ $ snap install kubectl --classic
 ```
 
 # 安装 istio
+
 ```bash
 $ wget https://github.com/istio/istio/releases/download/1.5.0/istio-1.5.0-linux.tar.gz
 $ tar xf istio-1.5.0-linux.tar.gz
@@ -175,6 +176,17 @@ $ kgs -n istio-system istio-ingressgateway -o jsonpath='{.status.loadBalancer.in
 ```bash
 $ istioctl dashboard kiali                                                                         
 http://localhost:20001/kiali
+```
+# 特殊情况处理
+
+* 镜像下载慢
+
+```bash
+# 在配置阿里云镜像加速器的 host 主机下载镜像
+$ kgp --all-namespaces -o jsonpath="{.items[*].spec.containers[*].image}" | tr -s ' ' '\n' | awk '{print "docker pull " $1}' | bash
+
+# 使用 k3d 导入镜像
+$ kgp --all-namespaces -o jsonpath="{.items[*].spec.containers[*].image}" || sed 's/^/k3d import-images /g' | bash
 ```
 
 ---
