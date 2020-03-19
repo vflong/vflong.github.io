@@ -104,6 +104,113 @@ fi
 * 输出：输出到 STDOUT 或 STDERR。
 * 返回值：返回的值不是上一次运行命令的默认退出状态。
 
+示例：
+
+```bash
+#######################################
+# Cleanup files from the backup directory.
+# Globals:
+#   BACKUP_DIR
+#   ORACLE_SID
+# Arguments:
+#   None
+#######################################
+function cleanup() {
+  …
+}
+
+#######################################
+# Get configuration directory.
+# Globals:
+#   SOMEDIR
+# Arguments:
+#   None
+# Outputs:
+#   Writes location to stdout
+#######################################
+function get_dir() {
+  echo "${SOMEDIR}"
+}
+
+#######################################
+# Delete a file in a sophisticated manner.
+# Arguments:
+#   File to delete, a path.
+# Returns:
+#   0 if thing was deleted, non-zero on error.
+#######################################
+function del_thing() {
+  rm "$1"
+}
+```
+
+## 实施注释
+
+注释代码中棘手、不明显、有趣或重要的部分。
+
+这遵循一般的 Google 编码注释惯例。不要注释所有内容。如果算法复杂，或者您要执行的操作与众不同，请在此处简短说明。
+
+## TODO 注释
+
+对于临时的、短期的解决方案或足够好但不完美的代码，请使用 TODO 注释。
+
+这符合 [C++ 指南](https://google.github.io/styleguide/cppguide.html#TODO_Comments)中的约定。
+
+`TODO` 应在所有大写字母中包含字符串 `TODO`，然后是与该 `TODO` 所引用问题最相关的人员的姓名、电子邮件地址或其他标识符。主要目的是要有一个一致的 `TODO`，可以对其进行搜索以找到如何根据请求获取更多详细信息。`TODO` 并不表示相关人员将解决问题。因此，在创建 TODO 时，几乎总是给出您的名字。
+
+示例：
+
+```bash
+# TODO(mrmonkey): Handle the unlikely edge cases (bug ####)
+```
+
+# 格式化
+
+虽然您应该遵循要修改的文件已存在的样式，但是任何新代码都需要遵循以下规范。
+
+## 缩进
+
+缩进 2 个空格。不使用 tab。
+
+在块之间使用空行以提高可读性。缩进是两个空格。无论您做什么，都不要使用标签。对于现有文件，请遵循现有缩进。
+
+## 长行和长字符串
+
+行的最大长度为 80 个字符。
+
+如果必须编写长度唱过 80 个字符的字符串，则应使用 here 文档或嵌入的换行符来完成。长度必须超过 80 个字符且不能明智地拆分的文字字符串是可以的，但是强烈建议您找到一种方法来缩短它。
+
+```bash
+# DO use 'here document's
+cat <<END
+I am an exceptionally long
+string.
+END
+
+# Embedded newlines are ok too
+long_string="I am an exceptionally
+long string."
+```
+
+## 管道
+
+如果管道不能全部容纳在一行上，则应将每条管道分开到一行上。
+
+如果管道适合放在一行上，那么它应该在一行上。
+
+如果不是，则应在每条线上的一个管道符（|）前将其拆分，并在换行符后添加管道符（|），并在管道前留出 2 个空格。这适用于使用 `|` 组合的命令链，以及使用 `||` 和 `&&` 的逻辑符。
+
+```bash
+# All fits on one line
+command1 | command2
+
+# Long commands
+command1 \
+  | command2 \
+  | command3 \
+  | command4
+```
+
 ---
 
 # 备注
