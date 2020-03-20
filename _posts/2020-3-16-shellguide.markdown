@@ -211,6 +211,205 @@ command1 \
   | command4
 ```
 
+## 循环
+
+将 `; do` 和 `; then` 放在 `while`、`for` 或 `if` 的同一行。
+
+Shell 中的循环有些不同，但是在声明函数时，我们遵循与花括号相同的原则。也就是说，`; then` 和 `; do` 应该和 `if/for/while` 在同一行。`else` 则应独占一行，并且闭合语句应与打开语句垂直对齐。
+
+例如：
+
+```bash
+# If inside a function, consider declaring the loop variable as
+# a local to avoid it leaking into the global environment:
+# local dir
+for dir in "${dirs_to_cleanup[@]}"; do
+  if [[ -d "${dir}/${ORACLE_SID}" ]]; then
+    log_date "Cleaning up old files in ${dir}/${ORACLE_SID}"
+    rm "${dir}/${ORACLE_SID}/"*
+    if (( $? != 0 )); then
+      error_message
+    fi
+  else
+    mkdir -p "${dir}/${ORACLE_SID}"
+    if (( $? != 0 )); then
+      error_message
+    fi
+  fi
+done
+```
+
+## Case 语句
+
+* 选项缩进两个空格。
+* 单行选项在匹配项的圆括号后和 `;;` 之前需要一个空格。
+* 长命令或命令选项应将匹配项、操作和 `;;` 分成多行，分别占据一行。
+
+匹配的表达式比 `case` 和 `esac` 缩进一级。多行命令再次缩进一级。通常无需引用匹配表达式。模式表达式不应在圆括号之前。避免使用 `;&` 和 `;;&`。
+
+```bash
+case "${expression}" in
+  a)
+    variable="…"
+    some_command "${variable}" "${other_expr}" …
+    ;;
+  absolute)
+    actions="relative"
+    another_command "${actions}" "${other_expr}" …
+    ;;
+  *)
+    error "Unexpected expression '${expression}'"
+    ;;
+esac
+```
+
+简单的命令可以与匹配项和 `;;` 放在同一行。只要表达式能够保持可读性即可。这通常使用用单字母现象处理。当命令不能单行显示时，将选项单独放在一行上，然后是命令，然后是 `;;`。与命令在同一行上时，请在模式的右括号后使用空格，在 `;;` 之前使用另一个空格。
+
+```bash
+verbose='false'
+aflag=''
+bflag=''
+files=''
+while getopts 'abf:v' flag; do
+  case "${flag}" in
+    a) aflag='true' ;;
+    b) bflag='true' ;;
+    f) files="${OPTARG}" ;;
+    v) verbose='true' ;;
+    *) error "Unexpected option ${flag}" ;;
+  esac
+done
+```
+
+## 变量范围
+
+优先顺序：与发现的内容保持一致；引用您的变量；优先使用 `"${var}"` 而不是 `"$var"`。
+
+这些是强烈建议的准则，而不是强制性法规。不过，这是一项推荐而非强制性要求，并不意味着应轻视或轻描淡写。
+
+它们按优先顺序列出。
+
+* 与现有代码的格式保持一致。
+* 引用变量，请参见下面的引用部分。
+* 不要用大括号分隔单个字符的 shell 特殊字符/位置参数，除非严格要求，否则请避免造成深深的困惑。
+
+最好用大括号分隔所有其他变量。
+
+```bash
+# Section of *recommended* cases.
+
+# Preferred style for 'special' variables:
+echo "Positional: $1" "$5" "$3"
+echo "Specials: !=$!, -=$-, _=$_. ?=$?, #=$# *=$* @=$@ \$=$$ …"
+
+# Braces necessary:
+echo "many parameters: ${10}"
+
+# Braces avoiding confusion:
+# Output is "a0b0c0"
+set -- a b c
+echo "${1}0${2}0${3}0"
+
+# Preferred style for other variables:
+echo "PATH=${PATH}, PWD=${PWD}, mine=${some_var}"
+while read -r f; do
+  echo "file=${f}"
+done < <(find /tmp)
+# Section of *discouraged* cases
+
+# Unquoted vars, unbraced vars, brace-delimited single letter
+# shell specials.
+echo a=$avar "b=$bvar" "PID=${$}" "${1}"
+
+# Confusing use: this is expanded as "${1}0${2}0${3}0",
+# not "${10}${20}${30}
+set -- a b c
+echo "$10$20$30"
+```
+
+**注意**：在 `{var}` 中使用大括号不是引用形式。还必须使用双引号。
+
+## 引用
+
+* 始终引用包含变量、命令替换、空格或 shell 元字符的字符串，除非需要仔细的无引号扩展或它是 shell 程序内部的证书（请参阅下一点）。
+* 使用数组来安全引用元素列表，尤其是命令行标志。请参阅下面的数组。
+* （可选）引用定义为整数的 shell 内部制度特殊变量：`$?`、`$#`、`$$`、`$!`（man bash）。最好引用“命名”内部整数变量，例如 PPID 以保持一致性。
+* 最好用引号引起来的字符串是“单词”（与命令选项或路径名相反）。
+* 请勿引用文字整数。
+* 请注意 `[[...]]` 中模式匹配的引用规则。请参见下面的测试，`[...]` 和 `[[...]]` 部分。
+* 除非您有特定的原因要使用 `$*`，否则请使用 `"$@"`，例如仅将参数附加到消息或日志中的字符串上。
+
+```bash
+# 'Single' quotes indicate that no substitution is desired.
+# "Double" quotes indicate that substitution is required/tolerated.
+
+# Simple examples
+
+# "quote command substitutions"
+# Note that quotes nested inside "$()" don't need escaping.
+flag="$(some_command and its args "$@" 'quoted separately')"
+
+# "quote variables"
+echo "${flag}"
+
+# Use arrays with quoted expansion for lists.
+declare -a FLAGS
+FLAGS=( --foo --bar='baz' )
+readonly FLAGS
+mybinary "${FLAGS[@]}"
+
+# It's ok to not quote internal integer variables.
+if (( $# > 3 )); then
+  echo "ppid=${PPID}"
+fi
+
+# "never quote literal integers"
+value=32
+# "quote command substitutions", even when you expect integers
+number="$(generate_number)"
+
+# "prefer quoting words", not compulsory
+readonly USE_INTEGER='true'
+
+# "quote shell meta characters"
+echo 'Hello stranger, and well met. Earn lots of $$$'
+echo "Process $$: Done making \$\$\$."
+
+# "command options or path names"
+# ($1 is assumed to contain a value here)
+grep -li Hugo /dev/null "$1"
+
+# Less simple examples
+# "quote variables, unless proven false": ccs might be empty
+git send-email --to "${reviewers}" ${ccs:+"--cc" "${ccs}"}
+
+# Positional parameter precautions: $1 might be unset
+# Single quotes leave regex as-is.
+grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
+
+# For passing on arguments,
+# "$@" is right almost every time, and
+# $* is wrong almost every time:
+#
+# * $* and $@ will split on spaces, clobbering up arguments
+#   that contain spaces and dropping empty strings;
+# * "$@" will retain arguments as-is, so no args
+#   provided will result in no args being passed on;
+#   This is in most cases what you want to use for passing
+#   on arguments.
+# * "$*" expands to one argument, with all args joined
+#   by (usually) spaces,
+#   so no args provided will result in one empty string
+#   being passed on.
+# (Consult `man bash` for the nit-grits ;-)
+
+(set -- 1 "2 two" "3 three tres"; echo $#; set -- "$*"; echo "$#, $@")
+(set -- 1 "2 two" "3 three tres"; echo $#; set -- "$@"; echo "$#, $@")
+```
+
+# 特性和 Bug
+
+
 ---
 
 # 备注
