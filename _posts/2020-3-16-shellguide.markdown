@@ -409,6 +409,55 @@ grep -cP '([Ss]pecial|\|?characters*)$' ${1:+"$1"}
 
 # 特性和 Bug
 
+## ShellCheck
+
+[ShellCheck](https://www.shellcheck.net/) 项目为您的 Shell 脚本识别常见的错误和警告。建议所有脚本都使用，无论大小。
+
+## 命令替换
+
+使用 `$(command)` 代替反引号。
+
+嵌套的反引号要求使用 `\` 来转义内部的反引号。`$(command)` 格式在嵌套时无需更改，且便于阅读。
+
+例如：
+
+```bash
+# This is preferred:
+var="$(command "$(command1)")"
+
+# This is not:
+var="`command \`command1\``"
+```
+
+# `test`、`[ ... ]` 和 `[[ ... ]]`
+
+`[[ ... ]]` 优先于 `[ ... ]`、`test` 和 `/usr/bin/[`。
+
+`[[ ... ]]` 减少了错误，因为 `[[` 和 `]]` 之间没有路径名扩展或单词分割。另外，`[[ ... ]]` 支持正则表达式匹配，而 `[ ... ]` 不支持。
+
+```bash
+# This ensures the string on the left is made up of characters in
+# the alnum character class followed by the string name.
+# Note that the RHS should not be quoted here.
+if [[ "filename" =~ ^[[:alnum:]]+name ]]; then
+  echo "Match"
+fi
+
+# This matches the exact pattern "f*" (Does not match in this case)
+if [[ "filename" == "f*" ]]; then
+  echo "Match"
+fi
+
+# This gives a "too many arguments" error as f* is expanded to the
+# contents of the current directory
+if [ "filename" == f* ]; then
+  echo "Match"
+fi
+```
+
+有关详细信息，请参阅 [http://tiswww.case.edu/php/chet/bash/FAQ](http://tiswww.case.edu/php/chet/bash/FAQ) 上的E14。
+
+
 
 ---
 
