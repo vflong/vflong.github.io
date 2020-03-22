@@ -457,7 +457,82 @@ fi
 
 有关详细信息，请参阅 [http://tiswww.case.edu/php/chet/bash/FAQ](http://tiswww.case.edu/php/chet/bash/FAQ) 上的E14。
 
+## 检测字符串
 
+尽可能使用引号而不是填充字符。
+
+Bash 足够聪明，可以在检测中处理空字符串。因此，鉴于代码更易于阅读，请对空/非空字符串或空字符串而不是填充字符进行检测。
+
+```bash
+# Do this:
+if [[ "${my_var}" == "some_string" ]]; then
+  do_something
+fi
+
+# -z (string length is zero) and -n (string length is not zero) are
+# preferred over testing for an empty string
+if [[ -z "${my_var}" ]]; then
+  do_something
+fi
+
+# This is OK (ensure quotes on the empty side), but not preferred:
+if [[ "${my_var}" == "" ]]; then
+  do_something
+fi
+```
+
+```bash
+# Not this:
+if [[ "${my_var}X" == "some_stringX" ]]; then
+  do_something
+fi
+```
+
+为了避免混淆您要检测的内容，请显式使用 `-z` 或 `-n`。
+
+```bash
+# Use this
+if [[ -n "${my_var}" ]]; then
+  do_something
+fi
+```
+
+```bash
+# Instead of this
+if [[ "${my_var}" ]]; then
+  do_something
+fi
+```
+
+为了清除起见，请使用 `==` 表示相等性，而不要使用 `=`，即使两者都可行。前者鼓励使用 `[[`，而后者会与赋值混淆。但是，在 `[[ ... ]]` 中使用 `<` 和 `>` 进行字典比较时要小心。使用 `(( ... ))` 或 `-lt` 和 `-gt` 进行数值比较。
+
+```bash
+# Use this
+if [[ "${my_var}" == "val" ]]; then
+  do_something
+fi
+
+if (( my_var > 3 )); then
+  do_something
+fi
+
+if [[ "${my_var}" -gt 3 ]]; then
+  do_something
+fi
+```
+
+```bash
+# Instead of this
+if [[ "${my_var}" = "val" ]]; then
+  do_something
+fi
+
+# Probably unintended lexicographical comparison.
+if [[ "${my_var}" > 3 ]]; then
+  # True for 4, false for 22.
+  do_something
+fi
+```
 
 ---
 
