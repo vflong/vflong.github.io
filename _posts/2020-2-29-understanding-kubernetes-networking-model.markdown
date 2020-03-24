@@ -259,7 +259,7 @@ Ingress —— 将流量引入集群 —— 是一个非常棘手的难题。同
 
 第 7 层网络入口在网络堆栈的 HTTP/HTTPS 协议范围内运行，并建立在服务之上。启用 Ingress 第一步是使用 Kubernetes 中的 `NodePort` Service 类型在 Service 上打开端口。如果将 Service 的类型字段设置为 NodePort，Kubernetes master 将在您指定的范围内分配一个端口，并且每个节点都会将该端口（每个节点上的相同端口号）代理到您的 Service 中。也就是说，使用 iptables 规则，任何定向到 Node 端口的流量都将转发到该 Service。此 Service 到 Pod 路由遵循了将流量从 Service 路由到 Pod 时已经讨论过的相同内部集群负载均衡模式。
 
-要将节点的端口暴露到 Internet，请使用 Ingress 对象。Ingress 是将 HTTP 请求映射到 Kubernetes Service 的高级 HTTP 负载均衡器。Ingress 方法将有所不同，具体取决于 Kubernetes 云供应商控制器如何实现。HTTP 负载均衡器（如第 4 层网络负载均衡器）仅了解节点 IP（而非 Pod IP），因此流量路由类似地利用 kube-proxy 在每个节点上安装的 iptables 顾泽提供的内部负载均衡。
+要将节点的端口暴露到 Internet，请使用 Ingress 对象。Ingress 是将 HTTP 请求映射到 Kubernetes Service 的高级 HTTP 负载均衡器。Ingress 方法将有所不同，具体取决于 Kubernetes 云供应商控制器如何实现。HTTP 负载均衡器（如第 4 层网络负载均衡器）仅了解节点 IP（而非 Pod IP），因此流量路由类似地利用 kube-proxy 在每个节点上安装的 iptables 规则提供的内部负载均衡。
 
 在 AWS 环境中，ALB Ingress Controller 使用 Amazon 的 7 层应用程序负载均衡器提供 Kubernetes Ingress。下图详细说明了此 Controller 创建的 AWS 组件。它还演示了 Ingress 流量从 ALB 到 Kubernetes 集群的路线。
 
