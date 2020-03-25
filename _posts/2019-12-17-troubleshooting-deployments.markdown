@@ -309,7 +309,7 @@ $ kubectl port-forward nginx-ingress-controller-6fc5bcc 3000:80 --namespace kube
 
 1. Service selector 应该匹配 Pod 的 label
 1. Service 的 `targetPort` 应该匹配 Pod 中容器的 `containerPort`
-1. Service 的 port 可以是任意值。多个 Service 可以使用相同的 port，因为它们被分配了不通的 IP 地址
+1. Service 的 port 可以是任意值。多个 Service 可以使用相同的 port，因为它们被分配了不同的 IP 地址
 1. Ingress 的 `servicePort` 应该匹配 Service 的 `port`
 1. Service 的 `name` 应该匹配 Ingress 的 `serviceName`
 
