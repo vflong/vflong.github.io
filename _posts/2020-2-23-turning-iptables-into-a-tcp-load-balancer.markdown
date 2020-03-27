@@ -275,6 +275,8 @@ Hi from 10.0.0.2
 
 在本文中，我们看到了如何基于 iptables 和 Linux 内核构建 TCP 负载平衡器。我们使用此方法来创建当前在生产 IoT 应用程序中使用的 TCP 网关。
 
+---
+
 # 备注
 
 * 原文：[https://scalingo.com/blog/iptables](https://scalingo.com/blog/iptables)
