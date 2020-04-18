@@ -86,6 +86,9 @@ $ vim .zshrc
  )
 
 $ source .zshrc
+
+# 发现了一个好用的 zsh 主题，功能很强大
+# https://github.com/romkatv/powerlevel10k
 ```
 
 ## 配置 Vim
