@@ -66,3 +66,10 @@ categories: sre k8s
 # kubectl
 
 * 双短线（`--`）表示命令的结束，防止后面命令的参数无效。
+
+# etcd
+
+* etcd 是 Kubernetes 存储集群状态和元数据的唯一位置。
+* Kubernetes API server 是与 etcd 直接交互的唯一组件。
+* ectd 使用了 RAFT 算法实现分布式一致性。
+* etcd 的实例数量为什么是奇数？
