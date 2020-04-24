@@ -77,3 +77,9 @@ categories: sre k8s
 # Scheduler
 
 * Scheduler 并不负责指定选定的 node 去运行 Pod，而是通过 API server 更新 Pod 定义并存储在 etcd 中，API server 来通知 Kubelet 运行 Pod。
+
+# Controller Manager
+
+* Controller Manager 包含多个 Controller。
+* Controllers 实现系统的期望状态。
+* Controller Manager 通过创建新的 Pod 清单，POST 到 API server，并通知 Scheduler 和 Kubelet 实现调度和运行 Pod。
