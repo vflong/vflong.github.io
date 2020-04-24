@@ -73,3 +73,7 @@ categories: sre k8s
 * Kubernetes API server 是与 etcd 直接交互的唯一组件。
 * ectd 使用了 RAFT 算法实现分布式一致性。
 * etcd 的实例数量为什么是奇数？
+
+# Scheduler
+
+* Scheduler 并不负责指定选定的 node 去运行 Pod，而是通过 API server 更新 Pod 定义并存储在 etcd 中，API server 来通知 Kubelet 运行 Pod。
