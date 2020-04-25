@@ -27,3 +27,29 @@ categories: skill
 > brew install telnet
 > brew update
 ```
+
+# 常用快捷键
+
+只记录与以前习惯不一致的快捷键。
+
+[官方文档](https://support.apple.com/zh-cn/HT201236)
+
+## 锁屏
+
+* Control-Command-Q：立即锁定屏幕。
+
+##  截屏
+
+* Shift-Command-3 截取全屏。
+* Shift-Command-4 自定义截取。
+* Shift-Command-5 录制。
+
+* Control-Shift-Command-3 截取全屏。
+* Control-Shift-Command-4 自定义截取。
+
+* Shift-Command-A 钉钉截图，默认快捷键。
+* Control-Command-A 微信截图，默认快捷键。
+
+## 搜索
+
+* Command–空格键：显示或隐藏“聚焦”搜索栏。
