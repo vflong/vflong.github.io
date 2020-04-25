@@ -150,6 +150,17 @@ Traceback (most recent call last):
 /usr/lib/ruby/vendor_ruby/bundler/lockfile_parser.rb:108:in `warn_for_outdated_bundler_version': You must use Bundler 2 or greater with this lockfile. (Bundler::LockfileError)
 ```
 
+### Mac 中配置开发环境
+
+```bash
+> brew install ruby
+> gem sources --add https://gems.ruby-china.com/ --remove https://rubygems.org/
+> bundle config mirror.https://rubygems.org https://gems.ruby-china.com
+> sudo gem install jekyll bundler
+> bundle update
+> bundle exec jekyll -v               
+> bundle exec jekyll serve --port 8080
+```
 
 ## 参考
 * [creating-a-github-pages-site-with-jekyll](https://help.github.com/en/github/working-with-github-pages/creating-a-github-pages-site-with-jekyll)
