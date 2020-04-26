@@ -67,19 +67,32 @@ categories: sre k8s
 
 * 双短线（`--`）表示命令的结束，防止后面命令的参数无效。
 
-# etcd
+# 基础组件
+
+## etcd
 
 * etcd 是 Kubernetes 存储集群状态和元数据的唯一位置。
 * Kubernetes API server 是与 etcd 直接交互的唯一组件。
 * ectd 使用了 RAFT 算法实现分布式一致性。
 * etcd 的实例数量为什么是奇数？
 
-# Scheduler
+## Scheduler
 
 * Scheduler 并不负责指定选定的 node 去运行 Pod，而是通过 API server 更新 Pod 定义并存储在 etcd 中，API server 来通知 Kubelet 运行 Pod。
 
-# Controller Manager
+## Controller Manager
 
 * Controller Manager 包含多个 Controller。
 * Controllers 实现系统的期望状态。
-* Controller Manager 通过创建新的 Pod 清单，POST 到 API server，并通知 Scheduler 和 Kubelet 实现调度和运行 Pod。
+* Controller Manager （Replication、ReplicaSet、StatefulSet）通过创建新的 Pod 清单，POST 到 API server，并通知 Scheduler 和 Kubelet 实现调度和运行 Pod。
+* Namespace controller 实现了删除 Namespace 资源时，同步删除 Namespace 中的所有资源。
+* 所有的 Contoller 通过 API server 实现操作，并不直接与 Kubelet 或其他组件交流。
+
+## Kubelet
+
+* Kubelet 负责运行在 worker 节点的一切活动。
+* Kubelet 既可以从 Kubernetes API server 获取 Pod 清单，也可以从指定的本地目录获取 Pod 清单（用于运行控制平面的组件）来运行 Pod。
+
+## kube-proxy
+
+* kube-proxy 负责将到达 service IP 与 port 的流量转发到后端的 Pod。
