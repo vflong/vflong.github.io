@@ -16,6 +16,7 @@ categories: skill
 * [Homebrew](https://ohmyz.sh/)
 * [Visual Studio Code](https://code.visualstudio.com/)
 * [为知笔记](https://www.wiz.cn/zh-cn/)
+* [MacPass](https://macpassapp.org/)
 
 # brew 使用
 
