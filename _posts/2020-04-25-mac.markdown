@@ -18,6 +18,7 @@ categories: skill
 * [Visual Studio Code](https://code.visualstudio.com/)
 * [为知笔记](https://www.wiz.cn/zh-cn/)
 * [MacPass](https://macpassapp.org/)
+* [Xnip](https://zh.xnipapp.com/)
 
 # brew 使用
 
