@@ -13,6 +13,7 @@ categories: skill
 * [Oh My Zsh](https://ohmyz.sh/)
 * [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
 * [Powerlevel10k](https://github.com/romkatv/powerlevel10k)
+* [The Ultimate vimrc](https://github.com/amix/vimrc)
 * [Homebrew](https://ohmyz.sh/)
 * [Visual Studio Code](https://code.visualstudio.com/)
 * [为知笔记](https://www.wiz.cn/zh-cn/)
