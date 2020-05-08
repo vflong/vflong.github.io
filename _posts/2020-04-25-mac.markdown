@@ -28,6 +28,7 @@ categories: skill
 > brew install htop
 > brew install kubectl
 > brew install telnet
+> brew install shellcheck
 > brew update
 ```
 
